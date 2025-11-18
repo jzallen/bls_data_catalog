@@ -1,0 +1,248 @@
+version: 2
+
+# DASHBOARDS LAYER - Exposures
+# These represent collections of reports that form complete dashboards
+# Each exposure maps to a micro-frontend dashboard composed of BI components
+
+exposures:
+  # Dashboard 1: Executive Labor Market Overview
+  - name: labor_market_executive_dashboard
+    type: dashboard
+    description: |
+      Executive-level dashboard showing national and regional labor market health.
+      Includes high-level KPIs and trends for decision-makers.
+    
+    maturity: high
+    owner:
+      name: Data Analytics Team
+      email: analytics@example.com
+    
+    url: https://example.com/dashboards/labor-market-executive
+    
+    # Define which models this dashboard depends on
+    depends_on:
+      - ref('state_employment_combined')
+      - ref('employment_cleaned')
+      - ref('unemployment_cleaned')
+    
+    # Custom metadata linking to semantic models (Reports)
+    meta:
+      reports:
+        - state_employment_report
+        - regional_employment_report
+        - unemployment_distribution_report
+      
+      layout:
+        type: "grid"
+        rows: 3
+        columns: 2
+      
+      components:
+        - report_id: state_employment_report
+          position: { row: 1, col: 1, span_cols: 2 }
+          title: "National Employment Overview"
+          default_filters:
+            year: ["2024"]
+        
+        - report_id: regional_employment_report
+          position: { row: 2, col: 1 }
+          title: "Regional Employment Trends"
+          chart_type: "line"
+        
+        - report_id: unemployment_distribution_report
+          position: { row: 2, col: 2 }
+          title: "Unemployment Rate Distribution"
+          chart_type: "histogram"
+      
+      refresh_schedule: "0 8 * * *"  # Daily at 8am
+      cache_ttl: 3600  # 1 hour
+      access_level: "executive"
+
+  # Dashboard 2: State Comparative Analysis
+  - name: state_comparative_dashboard
+    type: dashboard
+    description: |
+      Detailed state-by-state comparison dashboard for policy analysts.
+      Allows drilling into specific states and comparing metrics across regions.
+    
+    maturity: high
+    owner:
+      name: Policy Research Team
+      email: policy@example.com
+    
+    url: https://example.com/dashboards/state-comparison
+    
+    depends_on:
+      - ref('state_employment_combined')
+      - ref('employment_cleaned')
+      - ref('unemployment_cleaned')
+    
+    meta:
+      reports:
+        - state_employment_report
+        - employment_growth_report
+        - regional_employment_report
+      
+      layout:
+        type: "flex"
+      
+      components:
+        - report_id: state_employment_report
+          title: "State Employment Metrics"
+          sortable: true
+          filterable: true
+          exportable: true
+        
+        - report_id: employment_growth_report
+          title: "Employment Growth by State"
+          chart_type: "bar"
+          sort_by: "employment_growth_rate"
+          sort_order: "desc"
+        
+        - report_id: regional_employment_report
+          title: "Regional Context"
+          chart_type: "area"
+      
+      filters:
+        - dimension: state_name
+          type: "multi-select"
+          default: []
+        
+        - dimension: year
+          type: "single-select"
+          default: "2024"
+        
+        - dimension: region_name
+          type: "multi-select"
+          default: []
+      
+      refresh_schedule: "0 */6 * * *"  # Every 6 hours
+      cache_ttl: 7200  # 2 hours
+      access_level: "analyst"
+
+  # Dashboard 3: Regional Economic Health Monitor
+  - name: regional_health_dashboard
+    type: dashboard
+    description: |
+      Real-time monitoring dashboard for regional economic health indicators.
+      Focused on identifying trends and anomalies by geographic region.
+    
+    maturity: medium
+    owner:
+      name: Economic Research Team
+      email: econ-research@example.com
+    
+    url: https://example.com/dashboards/regional-health
+    
+    depends_on:
+      - ref('state_employment_combined')
+      - ref('employment_cleaned')
+      - ref('unemployment_cleaned')
+    
+    meta:
+      reports:
+        - regional_employment_report
+        - unemployment_distribution_report
+        - employment_growth_report
+      
+      layout:
+        type: "dashboard"
+      
+      components:
+        - report_id: regional_employment_report
+          title: "Regional Employment Trends"
+          visualization: "multi_line_chart"
+          group_by: ["region_name", "year_month"]
+          metrics: ["regional_employment", "regional_unemployment_rate"]
+        
+        - report_id: unemployment_distribution_report
+          title: "Current Unemployment Distribution"
+          visualization: "box_plot"
+          group_by: ["region_name"]
+        
+        - report_id: employment_growth_report
+          title: "Top/Bottom States by Growth"
+          visualization: "diverging_bar"
+          limit: 10
+      
+      kpis:
+        - metric: "national_employment"
+          label: "Total Employment"
+          format: "number"
+          comparison: "previous_month"
+        
+        - metric: "national_unemployment_rate"
+          label: "National Unemployment Rate"
+          format: "percentage"
+          comparison: "previous_month"
+          threshold:
+            warning: 5.0
+            critical: 6.0
+      
+      refresh_schedule: "0 9 * * 1"  # Weekly on Monday at 9am
+      cache_ttl: 86400  # 24 hours
+      access_level: "public"
+
+  # Dashboard 4: Monthly Employment Report (Internal)
+  - name: monthly_employment_report
+    type: dashboard
+    description: |
+      Comprehensive monthly employment report for internal stakeholders.
+      Used for monthly review meetings and strategic planning.
+    
+    maturity: high
+    owner:
+      name: Data Engineering Team
+      email: data-eng@example.com
+    
+    url: https://example.com/dashboards/monthly-report
+    
+    depends_on:
+      - ref('state_employment_combined')
+      - ref('employment_cleaned')
+      - ref('unemployment_cleaned')
+    
+    meta:
+      reports:
+        - state_employment_report
+        - regional_employment_report
+        - employment_growth_report
+        - unemployment_distribution_report
+      
+      layout:
+        type: "report"  # Fixed layout optimized for PDF export
+      
+      sections:
+        - title: "Executive Summary"
+          components:
+            - report_id: state_employment_report
+              aggregation: "national"
+              time_range: "current_month"
+            - report_id: regional_employment_report
+              aggregation: "by_region"
+              time_range: "last_12_months"
+        
+        - title: "State Details"
+          components:
+            - report_id: state_employment_report
+              view: "detailed_table"
+              columns: ["state_name", "employment_level", "unemployment_rate", "labor_force"]
+              sortable: true
+        
+        - title: "Growth Analysis"
+          components:
+            - report_id: employment_growth_report
+              visualization: "map"
+              color_scale: "diverging"
+        
+        - title: "Distribution Analysis"
+          components:
+            - report_id: unemployment_distribution_report
+              visualization: "histogram"
+              bins: 10
+      
+      export_formats: ["pdf", "excel", "csv"]
+      refresh_schedule: "0 10 1 * *"  # First day of month at 10am
+      cache_ttl: 604800  # 7 days
+      access_level: "internal"
+      tags: ["monthly", "employment", "official_report"]

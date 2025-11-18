@@ -1,0 +1,10 @@
+bls_data_catalog:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: './bls_data.duckdb'
+      threads: 4
+      extensions:
+        - httpfs
+        - parquet

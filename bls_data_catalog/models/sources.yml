@@ -1,0 +1,87 @@
+version: 2
+
+# TABLES LAYER - Raw data sources
+# These represent the base-level entities in the warehouse
+# In a real scenario, these would be loaded via an ELT tool like Airbyte or Fivetran
+
+sources:
+  - name: bls_raw
+    description: "Raw BLS (Bureau of Labor Statistics) data loaded from seed files"
+    schema: raw
+    tables:
+      - name: states
+        description: "State metadata including FIPS codes, names, and regional classifications"
+        meta:
+          owner: "data-platform"
+          data_source: "BLS LAUS"
+          update_frequency: "static"
+        columns:
+          - name: state_fips
+            description: "Federal Information Processing Standard state code"
+            tests:
+              - unique
+              - not_null
+          - name: state_name
+            description: "Full state name"
+          - name: state_abbr
+            description: "Two-letter state abbreviation"
+          - name: region_name
+            description: "Census Bureau region (Northeast, Midwest, South, West)"
+          - name: division_name
+            description: "Census Bureau division (more granular than region)"
+
+      - name: employment_monthly
+        description: "Monthly employment levels by state from BLS Local Area Unemployment Statistics"
+        meta:
+          owner: "data-platform"
+          data_source: "BLS LAUS Series"
+          update_frequency: "monthly"
+          last_updated: "2024-11-01"
+        columns:
+          - name: state_fips
+            description: "State FIPS code"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('bls_raw', 'states')
+                  field: state_fips
+          - name: year_month
+            description: "First day of the month (YYYY-MM-DD)"
+            tests:
+              - not_null
+          - name: employment_level
+            description: "Total employment in thousands"
+            tests:
+              - not_null
+          - name: series_id
+            description: "BLS series identifier"
+
+      - name: unemployment_monthly
+        description: "Monthly unemployment rates and labor force statistics by state"
+        meta:
+          owner: "data-platform"
+          data_source: "BLS LAUS Series"
+          update_frequency: "monthly"
+          last_updated: "2024-11-01"
+        columns:
+          - name: state_fips
+            description: "State FIPS code"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('bls_raw', 'states')
+                  field: state_fips
+          - name: year_month
+            description: "First day of the month (YYYY-MM-DD)"
+            tests:
+              - not_null
+          - name: unemployment_rate
+            description: "Unemployment rate as percentage"
+            tests:
+              - not_null
+          - name: labor_force
+            description: "Total labor force in thousands"
+          - name: unemployed
+            description: "Number of unemployed persons in thousands"
+          - name: series_id
+            description: "BLS series identifier"
