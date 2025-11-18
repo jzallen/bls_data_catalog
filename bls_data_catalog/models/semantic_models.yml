@@ -8,7 +8,7 @@ semantic_models:
   # Report 1: State Employment Overview
   - name: state_employment_report
     description: "Employment metrics by state and time period"
-    model: ref('state_employment_combined')
+    model: ref('v_state_employment')
     config:
       meta:
         visualization_type: "table"
@@ -89,7 +89,7 @@ semantic_models:
   # Report 2: Regional Employment Trends
   - name: regional_employment_report
     description: "Regional aggregated employment metrics over time"
-    model: ref('state_employment_combined')
+    model: ref('v_state_employment')
     config:
       meta:
         visualization_type: "line_chart"

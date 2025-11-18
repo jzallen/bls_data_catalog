@@ -8,7 +8,7 @@
   )
 }}
 
--- VIEWS LAYER - employment_cleaned
+-- VIEWS LAYER - v_employment
 -- Public interface that joins employment levels with state metadata
 -- This view enforces data quality and provides a clean API for downstream reports
 

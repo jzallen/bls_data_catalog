@@ -8,7 +8,7 @@
   )
 }}
 
--- VIEWS LAYER - state_employment_combined
+-- VIEWS LAYER - v_state_employment
 -- Combines employment and unemployment data into a single comprehensive view
 -- This is a 1:1 join on state and month
 
@@ -24,7 +24,7 @@ with employment as (
         month,
         year_quarter,
         employment_level
-    from {{ ref('employment_cleaned') }}
+    from {{ ref('v_employment') }}
 ),
 
 unemployment as (
@@ -34,7 +34,7 @@ unemployment as (
         unemployment_rate,
         labor_force,
         unemployed
-    from {{ ref('unemployment_cleaned') }}
+    from {{ ref('v_unemployment') }}
 )
 
 select

@@ -8,7 +8,7 @@
   )
 }}
 
--- VIEWS LAYER - unemployment_cleaned
+-- VIEWS LAYER - v_unemployment
 -- Public interface that joins unemployment rates with state metadata
 -- This view enforces data quality and provides a clean API for downstream reports
 

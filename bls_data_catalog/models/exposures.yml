@@ -21,9 +21,9 @@ exposures:
     
     # Define which models this dashboard depends on
     depends_on:
-      - ref('state_employment_combined')
-      - ref('employment_cleaned')
-      - ref('unemployment_cleaned')
+      - ref('v_state_employment')
+      - ref('v_employment')
+      - ref('v_unemployment')
     
     # Custom metadata linking to semantic models (Reports)
     meta:
@@ -73,9 +73,9 @@ exposures:
     url: https://example.com/dashboards/state-comparison
     
     depends_on:
-      - ref('state_employment_combined')
-      - ref('employment_cleaned')
-      - ref('unemployment_cleaned')
+      - ref('v_state_employment')
+      - ref('v_employment')
+      - ref('v_unemployment')
     
     meta:
       reports:
@@ -135,9 +135,9 @@ exposures:
     url: https://example.com/dashboards/regional-health
     
     depends_on:
-      - ref('state_employment_combined')
-      - ref('employment_cleaned')
-      - ref('unemployment_cleaned')
+      - ref('v_state_employment')
+      - ref('v_employment')
+      - ref('v_unemployment')
     
     meta:
       reports:
@@ -198,9 +198,9 @@ exposures:
     url: https://example.com/dashboards/monthly-report
     
     depends_on:
-      - ref('state_employment_combined')
-      - ref('employment_cleaned')
-      - ref('unemployment_cleaned')
+      - ref('v_state_employment')
+      - ref('v_employment')
+      - ref('v_unemployment')
     
     meta:
       reports:
