@@ -1,0 +1,99 @@
+tasks:
+    setup_dev_environment:
+        name: Setup Dev Environment
+        description: Install Pants build system and Bun runtime
+        command: |
+            set -e
+            echo "Setting up development environment..."
+
+            # Install Pants build system
+            echo "Installing Pants build system..."
+            curl --proto '=https' --tlsv1.2 -fsSL https://static.pantsbuild.org/setup/get-pants.sh | bash
+            export PATH="$HOME/.local/bin:$PATH"
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+            # Verify Pants installation
+            ~/.local/bin/pants --version
+            echo "Pants installed successfully!"
+
+            # Install Bun runtime
+            echo "Installing Bun runtime..."
+            curl -fsSL https://bun.sh/install | bash
+            export PATH="$HOME/.bun/bin:$PATH"
+
+            # Verify Bun installation
+            ~/.bun/bin/bun --version
+            echo "Bun installed successfully!"
+
+            echo ""
+            echo "================================================================"
+            echo "Development environment setup complete!"
+            echo "================================================================"
+            echo "Installed tools:"
+            echo "  - Pants build system: $(~/.local/bin/pants --version)"
+            echo "  - Bun runtime: $(~/.bun/bin/bun --version)"
+            echo ""
+            echo "To use these tools immediately in your current shell:"
+            echo "  source ~/.bashrc"
+            echo ""
+            echo "Or simply restart your terminal."
+            echo "================================================================"
+        triggeredBy: ['postDevcontainerStart', 'manual']
+
+    install_dependencies:
+        name: Install Dependencies
+        description: Install Python and JavaScript dependencies
+        command: |
+            set -e
+            echo "Installing project dependencies..."
+
+            # Ensure tools are in PATH
+            export PATH="$HOME/.local/bin:$HOME/.bun/bin:$PATH"
+
+            # Generate Pants lockfile
+            echo "Generating Pants lockfile for Python dependencies..."
+            ~/.local/bin/pants generate-lockfiles --resolve=quill_env
+
+            # Export Python virtual environment
+            echo "Exporting Python virtual environment..."
+            ~/.local/bin/pants export --resolve=quill_env
+
+            # Install JavaScript dependencies with Bun
+            echo "Installing JavaScript dependencies with Bun..."
+            if [ -f "package.json" ]; then
+                ~/.bun/bin/bun install
+            else
+                echo "No package.json found, skipping JavaScript dependencies"
+            fi
+
+            echo ""
+            echo "================================================================"
+            echo "Dependencies installed successfully!"
+            echo "================================================================"
+            echo "Python virtualenv: dist/export/python/virtualenvs/quill_env/3.12.12/"
+            echo "JavaScript packages: node_modules/"
+            echo ""
+            echo "To activate Python virtualenv:"
+            echo "  source dist/export/python/virtualenvs/quill_env/3.12.12/bin/activate"
+            echo "================================================================"
+        triggeredBy: ['manual']
+
+    clean:
+        name: Clean Build Artifacts
+        description: Remove build artifacts and caches
+        command: |
+            set -e
+            echo "Cleaning build artifacts..."
+
+            # Clean Pants artifacts
+            rm -rf .pants.d/
+            rm -rf dist/
+            echo "Removed Pants build artifacts"
+
+            # Clean Node modules (optional - uncomment if needed)
+            # rm -rf node_modules/
+            # rm -f bun.lock
+            # echo "Removed JavaScript dependencies"
+
+            echo "Clean complete!"
+        triggeredBy: ['manual']
