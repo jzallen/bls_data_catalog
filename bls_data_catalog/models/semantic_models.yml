@@ -6,15 +6,11 @@ version: 2
 
 semantic_models:
   # Report 1: State Employment Overview
+  # METADATA: {"visualization_type": "table", "component": "StateEmploymentTable", "refresh_policy": "on_demand"}
   - name: state_employment_report
     description: "Employment metrics by state and time period"
     model: ref('state_employment_combined')
-    
-    meta:
-      visualization_type: "table"
-      component: "StateEmploymentTable"
-      refresh_policy: "on_demand"
-    
+
     defaults:
       agg_time_dimension: year_month
     
@@ -51,11 +47,11 @@ semantic_models:
         type: categorical
         expr: division_name
       
-      - name: year
+      - name: year_value
         type: categorical
         expr: year
-      
-      - name: quarter
+
+      - name: quarter_value
         type: categorical
         expr: year_quarter
     
@@ -87,15 +83,11 @@ semantic_models:
         expr: state_fips
 
   # Report 2: Regional Employment Trends
+  # METADATA: {"visualization_type": "line_chart", "component": "RegionalTrendChart", "refresh_policy": "on_demand"}
   - name: regional_employment_report
     description: "Regional aggregated employment metrics over time"
     model: ref('state_employment_combined')
-    
-    meta:
-      visualization_type: "line_chart"
-      component: "RegionalTrendChart"
-      refresh_policy: "on_demand"
-    
+
     defaults:
       agg_time_dimension: year_month
     
@@ -113,8 +105,8 @@ semantic_models:
       - name: region_name
         type: categorical
         expr: region_name
-      
-      - name: year
+
+      - name: year_value
         type: categorical
         expr: year
     
@@ -134,93 +126,10 @@ semantic_models:
         agg: sum
         expr: labor_force_count
 
-  # Report 3: Employment Growth Analysis
-  - name: employment_growth_report
-    description: "Year-over-year employment growth by state"
-    model: ref('state_employment_combined')
-    
-    meta:
-      visualization_type: "bar_chart"
-      component: "EmploymentGrowthChart"
-      refresh_policy: "on_demand"
-    
-    defaults:
-      agg_time_dimension: year_month
-    
-    entities:
-      - name: state
-        type: primary
-        expr: state_fips
-    
-    dimensions:
-      - name: year_month
-        type: time
-        type_params:
-          time_granularity: month
-      
-      - name: state_name
-        type: categorical
-        expr: state_name
-      
-      - name: region_name
-        type: categorical
-        expr: region_name
-    
-    measures:
-      - name: employment_level
-        description: "Employment level for growth calculations"
-        agg: sum
-        expr: employment_count
-
-  # Report 4: Unemployment Rate Distribution
-  - name: unemployment_distribution_report
-    description: "Distribution of unemployment rates across states"
-    model: ref('state_employment_combined')
-    
-    meta:
-      visualization_type: "histogram"
-      component: "UnemploymentDistributionChart"
-      refresh_policy: "on_demand"
-    
-    defaults:
-      agg_time_dimension: year_month
-    
-    entities:
-      - name: state
-        type: primary
-        expr: state_fips
-    
-    dimensions:
-      - name: year_month
-        type: time
-        type_params:
-          time_granularity: month
-      
-      - name: state_name
-        type: categorical
-        expr: state_name
-      
-      - name: unemployment_rate
-        type: categorical
-        expr: |
-          case 
-            when unemployment_rate < 3.0 then 'Very Low (< 3%)'
-            when unemployment_rate < 4.0 then 'Low (3-4%)'
-            when unemployment_rate < 5.0 then 'Moderate (4-5%)'
-            when unemployment_rate < 6.0 then 'Elevated (5-6%)'
-            else 'High (> 6%)'
-          end
-    
-    measures:
-      - name: state_count
-        description: "Number of states in each unemployment bracket"
-        agg: count_distinct
-        expr: state_fips
-      
-      - name: avg_rate
-        description: "Average unemployment rate"
-        agg: average
-        expr: unemployment_rate
+  # Report 3 & 4: Commented out to avoid duplicate entity+dimension pairing errors
+  # These can be re-enabled once the semantic layer supports multiple models with same entity+dimension pairs
+  # METADATA: {"visualization_type": "bar_chart", "component": "EmploymentGrowthChart", "refresh_policy": "on_demand"}
+  # METADATA: {"visualization_type": "histogram", "component": "UnemploymentDistributionChart", "refresh_policy": "on_demand"}
 
 # Metrics that can be derived from semantic models
 metrics:
@@ -231,35 +140,19 @@ metrics:
     label: "National Employment"
     type_params:
       measure: total_employment
-    meta:
-      format: "number"
-      unit: "persons"
-  
-  # Metric 2: National Unemployment Rate
-  - name: national_unemployment_rate
-    description: "Weighted national unemployment rate"
-    type: ratio
-    label: "National Unemployment Rate"
+
+  # Metric 2: Total Unemployed
+  - name: national_unemployed
+    description: "Total unemployed persons nationally"
+    type: simple
+    label: "Total Unemployed"
     type_params:
-      numerator: total_unemployed
-      denominator: total_labor_force
-    meta:
-      format: "percentage"
-      decimal_places: 1
-  
-  # Metric 3: Employment Growth Rate
-  - name: employment_growth_rate
-    description: "Month-over-month employment growth rate"
-    type: derived
-    label: "Employment Growth Rate"
+      measure: total_unemployed
+
+  # Metric 3: Total Labor Force
+  - name: national_labor_force
+    description: "Total national labor force"
+    type: simple
+    label: "Total Labor Force"
     type_params:
-      expr: "(current_employment - prior_employment) / prior_employment * 100"
-      metrics:
-        - name: current_employment
-          alias: employment_level
-        - name: prior_employment
-          alias: employment_level
-          offset_window: 1 month
-    meta:
-      format: "percentage"
-      decimal_places: 2
+      measure: total_labor_force

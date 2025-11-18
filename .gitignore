@@ -86,3 +86,9 @@ temp/
 # DuckDB databases
 *.duckdb
 *.duckdb.wal
+
+# dbt
+target/
+dbt_packages/
+logs/
+.user.yml
