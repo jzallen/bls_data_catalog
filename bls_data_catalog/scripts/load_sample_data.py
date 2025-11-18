@@ -85,20 +85,25 @@ STATES_DATA = [
 STATE_FIPS = [state[0] for state in STATES_DATA]
 
 # BLS LAUS Series ID patterns
-# Format: LAUST{state_fips}0000000000{measure}
-# Measure 03 = Employment Level (in thousands)
-# Measure 04 = Unemployment Rate (percent)
-# Measure 05 = Labor Force (in thousands)
-# Measure 06 = Unemployed (in thousands)
-EMPLOYMENT_MEASURE = '03'
-UNEMPLOYMENT_MEASURE = '04'
-LABOR_FORCE_MEASURE = '05'
-UNEMPLOYED_MEASURE = '06'
+# Format: LAUST{state_fips}00000000000{measure}
+# Example: LAUST060000000000003 (California unemployment rate)
+# Measure 03 = Unemployment Rate (percent)
+# Measure 04 = Unemployed Persons (in thousands)
+# Measure 05 = Employment Level (in thousands)
+# Measure 06 = Labor Force (in thousands)
+UNEMPLOYMENT_RATE_MEASURE = '03'
+UNEMPLOYED_MEASURE = '04'
+EMPLOYMENT_MEASURE = '05'
+LABOR_FORCE_MEASURE = '06'
 
 
 def build_series_ids(measure: str) -> List[str]:
     """Build BLS LAUS series IDs for all states."""
-    return [f'LAUST{fips}0000000000{measure}' for fips in STATE_FIPS]
+    # LAUS series format: LAUST{ST}00000000000{MM}
+    # ST = 2-digit state FIPS code
+    # 00000000000 = 11 zeros for statewide area code
+    # MM = 2-digit measure code
+    return [f'LAUST{fips}00000000000{measure}' for fips in STATE_FIPS]
 
 
 def fetch_bls_data(series_ids: List[str], start_year: int, end_year: int) -> Dict[str, Any]:
@@ -122,6 +127,8 @@ def fetch_bls_data(series_ids: List[str], start_year: int, end_year: int) -> Dic
     headers = {'Content-Type': 'application/json'}
 
     print(f"  Fetching {len(series_ids)} series from {start_year} to {end_year}...")
+    if len(series_ids) <= 3:
+        print(f"  Series IDs: {series_ids}")
 
     try:
         response = requests.post(BLS_API_URL, json=payload, headers=headers, timeout=30)
@@ -129,8 +136,13 @@ def fetch_bls_data(series_ids: List[str], start_year: int, end_year: int) -> Dic
         data = response.json()
 
         if data.get('status') != 'REQUEST_SUCCEEDED':
-            error_msg = data.get('message', ['Unknown error'])[0]
-            raise Exception(f"BLS API error: {error_msg}")
+            error_msg = data.get('message', ['Unknown error'])
+            if isinstance(error_msg, list):
+                error_msg = error_msg[0] if error_msg else 'Unknown error'
+            print(f"  WARNING: BLS API returned status: {data.get('status')}")
+            print(f"  Message: {error_msg}")
+            # Return the data anyway to see what we got
+            return data
 
         return data
 
@@ -232,14 +244,14 @@ def parse_unemployment_data(api_response: Dict[str, Any]) -> List[Dict[str, Any]
 
 def fetch_labor_force_data(start_year: int, end_year: int) -> Dict[str, Dict[str, int]]:
     """
-    Fetch labor force (measure 05) and unemployed (measure 06) data from BLS API.
+    Fetch labor force (measure 06) and unemployed (measure 04) data from BLS API.
 
     Returns:
         Dictionary mapping (state_fips, year_month) to (labor_force, unemployed)
     """
-    print("\nFetching labor force and unemployed counts...")
+    print("\nFetching labor force counts...")
 
-    # Fetch labor force (measure 05)
+    # Fetch labor force (measure 06)
     labor_force_ids = build_series_ids(LABOR_FORCE_MEASURE)
 
     # Batch requests
@@ -349,11 +361,12 @@ def write_to_duckdb(employment_data: List[Dict], unemployment_data: List[Dict], 
             )
         """)
 
-        conn.executemany(
-            "INSERT INTO raw.employment_monthly VALUES (?, ?, ?, ?)",
-            [(r['state_fips'], r['year_month'], r['employment_level'], r['series_id'])
-             for r in employment_data]
-        )
+        if employment_data:
+            conn.executemany(
+                "INSERT INTO raw.employment_monthly VALUES (?, ?, ?, ?)",
+                [(r['state_fips'], r['year_month'], r['employment_level'], r['series_id'])
+                 for r in employment_data]
+            )
 
         emp_count = conn.execute("SELECT COUNT(*) FROM raw.employment_monthly").fetchone()[0]
         print(f"    ✓ Inserted {emp_count} employment records")
@@ -371,12 +384,13 @@ def write_to_duckdb(employment_data: List[Dict], unemployment_data: List[Dict], 
             )
         """)
 
-        conn.executemany(
-            "INSERT INTO raw.unemployment_monthly VALUES (?, ?, ?, ?, ?, ?)",
-            [(r['state_fips'], r['year_month'], r['unemployment_rate'],
-              r['labor_force'], r['unemployed'], r['series_id'])
-             for r in unemployment_data]
-        )
+        if unemployment_data:
+            conn.executemany(
+                "INSERT INTO raw.unemployment_monthly VALUES (?, ?, ?, ?, ?, ?)",
+                [(r['state_fips'], r['year_month'], r['unemployment_rate'],
+                  r['labor_force'], r['unemployed'], r['series_id'])
+                 for r in unemployment_data]
+            )
 
         unemp_count = conn.execute("SELECT COUNT(*) FROM raw.unemployment_monthly").fetchone()[0]
         print(f"    ✓ Inserted {unemp_count} unemployment records")
@@ -415,8 +429,9 @@ def main():
     print("=" * 70)
 
     # Determine date range (last 3 years)
+    # Note: BLS data is typically published with a lag, so we use previous year as end year
     current_year = datetime.now().year
-    end_year = current_year
+    end_year = current_year - 1  # Use previous year to ensure data availability
     start_year = end_year - 2  # 3 years of data
 
     print(f"\nFetching data for {start_year}-{end_year} (3 years)")
@@ -433,9 +448,9 @@ def main():
     data_dir.mkdir(exist_ok=True)
 
     try:
-        # Fetch employment data
+        # Fetch employment data (Measure 05)
         print("\n" + "=" * 70)
-        print("Fetching Employment Data (Measure 03)")
+        print("Fetching Employment Data (Measure 05)")
         print("=" * 70)
         employment_series = build_series_ids(EMPLOYMENT_MEASURE)
 
@@ -448,11 +463,11 @@ def main():
 
         print(f"  ✓ Retrieved {len(employment_records)} employment records")
 
-        # Fetch unemployment data
+        # Fetch unemployment rate (Measure 03)
         print("\n" + "=" * 70)
-        print("Fetching Unemployment Data (Measure 04)")
+        print("Fetching Unemployment Rate (Measure 03)")
         print("=" * 70)
-        unemployment_series = build_series_ids(UNEMPLOYMENT_MEASURE)
+        unemployment_series = build_series_ids(UNEMPLOYMENT_RATE_MEASURE)
 
         unemployment_records = []
         for i in range(0, len(unemployment_series), MAX_SERIES_PER_REQUEST):
@@ -462,9 +477,9 @@ def main():
 
         print(f"  ✓ Retrieved {len(unemployment_records)} unemployment records")
 
-        # Fetch labor force and unemployed counts
+        # Fetch labor force (06) and unemployed count (04)
         print("\n" + "=" * 70)
-        print("Fetching Labor Force & Unemployed Counts (Measures 05, 06)")
+        print("Fetching Labor Force & Unemployed Counts (Measures 04, 06)")
         print("=" * 70)
         labor_force_data = fetch_labor_force_data(start_year, end_year)
         unemployment_records = enrich_unemployment_data(unemployment_records, labor_force_data)

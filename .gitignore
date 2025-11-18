@@ -82,3 +82,7 @@ logs/
 tmp/
 temp/
 *.tmp
+
+# DuckDB databases
+*.duckdb
+*.duckdb.wal
