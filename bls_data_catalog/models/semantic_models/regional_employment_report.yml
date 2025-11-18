@@ -1,0 +1,90 @@
+version: 2
+
+# Regional Employment Report - Semantic Model
+# Provides regional aggregated employment metrics over time
+
+semantic_models:
+  - name: regional_employment_report
+    description: "Regional aggregated employment metrics over time"
+    model: ref('v_state_employment')
+    config:
+      meta:
+        visualization_type: "line_chart"
+        component: "RegionalTrendChart"
+        refresh_policy: "on_demand"
+
+    defaults:
+      agg_time_dimension: year_month
+
+    entities:
+      - name: region
+        type: primary
+        expr: region_name
+
+    dimensions:
+      - name: year_month
+        type: time
+        type_params:
+          time_granularity: month
+
+      - name: region_name
+        type: categorical
+        expr: region_name
+
+      - name: year_value
+        type: categorical
+        expr: year
+
+    measures:
+      - name: regional_employment
+        description: "Total regional employment"
+        agg: sum
+        expr: employment_count
+
+      - name: regional_unemployment_rate
+        description: "Regional weighted average unemployment rate"
+        agg: average
+        expr: unemployment_rate
+
+      - name: regional_labor_force
+        description: "Total regional labor force"
+        agg: sum
+        expr: labor_force_count
+
+# Metrics derived from regional employment report
+metrics:
+  - name: regional_employment
+    description: "Total employment by region"
+    type: simple
+    label: "Regional Employment"
+    type_params:
+      measure: regional_employment
+    config:
+      meta:
+        format: "number"
+        unit: "persons"
+        display_order: 1
+
+  - name: regional_unemployment_rate
+    description: "Average unemployment rate by region"
+    type: simple
+    label: "Regional Unemployment Rate"
+    type_params:
+      measure: regional_unemployment_rate
+    config:
+      meta:
+        format: "percentage"
+        unit: "percent"
+        display_order: 2
+
+  - name: regional_labor_force
+    description: "Total labor force by region"
+    type: simple
+    label: "Regional Labor Force"
+    type_params:
+      measure: regional_labor_force
+    config:
+      meta:
+        format: "number"
+        unit: "persons"
+        display_order: 3
