@@ -26,14 +26,63 @@ BLS_API_URL = "https://api.bls.gov/publicAPI/v2/timeseries/data/"
 MAX_SERIES_PER_REQUEST = 50  # BLS API limit
 MAX_YEARS_UNAUTHENTICATED = 10  # BLS API limit without API key
 
-# State FIPS codes (50 states + DC)
-STATE_FIPS = [
-    '01', '02', '04', '05', '06', '08', '09', '10', '11', '12',
-    '13', '15', '16', '17', '18', '19', '20', '21', '22', '23',
-    '24', '25', '26', '27', '28', '29', '30', '31', '32', '33',
-    '34', '35', '36', '37', '38', '39', '40', '41', '42', '44',
-    '45', '46', '47', '48', '49', '50', '51', '53', '54', '55', '56'
+# State metadata (FIPS codes, names, regions, divisions)
+STATES_DATA = [
+    ('01', 'Alabama', 'AL', 'South', 'East South Central'),
+    ('02', 'Alaska', 'AK', 'West', 'Pacific'),
+    ('04', 'Arizona', 'AZ', 'West', 'Mountain'),
+    ('05', 'Arkansas', 'AR', 'South', 'West South Central'),
+    ('06', 'California', 'CA', 'West', 'Pacific'),
+    ('08', 'Colorado', 'CO', 'West', 'Mountain'),
+    ('09', 'Connecticut', 'CT', 'Northeast', 'New England'),
+    ('10', 'Delaware', 'DE', 'South', 'South Atlantic'),
+    ('11', 'District of Columbia', 'DC', 'South', 'South Atlantic'),
+    ('12', 'Florida', 'FL', 'South', 'South Atlantic'),
+    ('13', 'Georgia', 'GA', 'South', 'South Atlantic'),
+    ('15', 'Hawaii', 'HI', 'West', 'Pacific'),
+    ('16', 'Idaho', 'ID', 'West', 'Mountain'),
+    ('17', 'Illinois', 'IL', 'Midwest', 'East North Central'),
+    ('18', 'Indiana', 'IN', 'Midwest', 'East North Central'),
+    ('19', 'Iowa', 'IA', 'Midwest', 'West North Central'),
+    ('20', 'Kansas', 'KS', 'Midwest', 'West North Central'),
+    ('21', 'Kentucky', 'KY', 'South', 'East South Central'),
+    ('22', 'Louisiana', 'LA', 'South', 'West South Central'),
+    ('23', 'Maine', 'ME', 'Northeast', 'New England'),
+    ('24', 'Maryland', 'MD', 'South', 'South Atlantic'),
+    ('25', 'Massachusetts', 'MA', 'Northeast', 'New England'),
+    ('26', 'Michigan', 'MI', 'Midwest', 'East North Central'),
+    ('27', 'Minnesota', 'MN', 'Midwest', 'West North Central'),
+    ('28', 'Mississippi', 'MS', 'South', 'East South Central'),
+    ('29', 'Missouri', 'MO', 'Midwest', 'West North Central'),
+    ('30', 'Montana', 'MT', 'West', 'Mountain'),
+    ('31', 'Nebraska', 'NE', 'Midwest', 'West North Central'),
+    ('32', 'Nevada', 'NV', 'West', 'Mountain'),
+    ('33', 'New Hampshire', 'NH', 'Northeast', 'New England'),
+    ('34', 'New Jersey', 'NJ', 'Northeast', 'Middle Atlantic'),
+    ('35', 'New Mexico', 'NM', 'West', 'Mountain'),
+    ('36', 'New York', 'NY', 'Northeast', 'Middle Atlantic'),
+    ('37', 'North Carolina', 'NC', 'South', 'South Atlantic'),
+    ('38', 'North Dakota', 'ND', 'Midwest', 'West North Central'),
+    ('39', 'Ohio', 'OH', 'Midwest', 'East North Central'),
+    ('40', 'Oklahoma', 'OK', 'South', 'West South Central'),
+    ('41', 'Oregon', 'OR', 'West', 'Pacific'),
+    ('42', 'Pennsylvania', 'PA', 'Northeast', 'Middle Atlantic'),
+    ('44', 'Rhode Island', 'RI', 'Northeast', 'New England'),
+    ('45', 'South Carolina', 'SC', 'South', 'South Atlantic'),
+    ('46', 'South Dakota', 'SD', 'Midwest', 'West North Central'),
+    ('47', 'Tennessee', 'TN', 'South', 'East South Central'),
+    ('48', 'Texas', 'TX', 'South', 'West South Central'),
+    ('49', 'Utah', 'UT', 'West', 'Mountain'),
+    ('50', 'Vermont', 'VT', 'Northeast', 'New England'),
+    ('51', 'Virginia', 'VA', 'South', 'South Atlantic'),
+    ('53', 'Washington', 'WA', 'West', 'Pacific'),
+    ('54', 'West Virginia', 'WV', 'South', 'South Atlantic'),
+    ('55', 'Wisconsin', 'WI', 'Midwest', 'East North Central'),
+    ('56', 'Wyoming', 'WY', 'West', 'Mountain'),
 ]
+
+# Extract just the FIPS codes for series ID generation
+STATE_FIPS = [state[0] for state in STATES_DATA]
 
 # BLS LAUS Series ID patterns
 # Format: LAUST{state_fips}0000000000{measure}
@@ -332,17 +381,26 @@ def write_to_duckdb(employment_data: List[Dict], unemployment_data: List[Dict], 
         unemp_count = conn.execute("SELECT COUNT(*) FROM raw.unemployment_monthly").fetchone()[0]
         print(f"    ✓ Inserted {unemp_count} unemployment records")
 
-        # Copy states.csv to raw.states table if it exists
-        states_csv = output_path.parent / 'states.csv'
-        if states_csv.exists():
-            print("  Creating raw.states table from states.csv...")
-            conn.execute("DROP TABLE IF EXISTS raw.states")
-            conn.execute(f"""
-                CREATE TABLE raw.states AS
-                SELECT * FROM read_csv_auto('{states_csv}')
-            """)
-            states_count = conn.execute("SELECT COUNT(*) FROM raw.states").fetchone()[0]
-            print(f"    ✓ Loaded {states_count} state records")
+        # Create states table from STATES_DATA constant
+        print("  Creating raw.states table...")
+        conn.execute("DROP TABLE IF EXISTS raw.states")
+        conn.execute("""
+            CREATE TABLE raw.states (
+                state_fips VARCHAR,
+                state_name VARCHAR,
+                state_abbr VARCHAR,
+                region_name VARCHAR,
+                division_name VARCHAR
+            )
+        """)
+
+        conn.executemany(
+            "INSERT INTO raw.states VALUES (?, ?, ?, ?, ?)",
+            STATES_DATA
+        )
+
+        states_count = conn.execute("SELECT COUNT(*) FROM raw.states").fetchone()[0]
+        print(f"    ✓ Inserted {states_count} state records")
 
         conn.commit()
 
@@ -424,6 +482,7 @@ def main():
         print(f"Data loaded to: {output_db}")
         print(f"  - raw.employment_monthly: {len(employment_records)} records")
         print(f"  - raw.unemployment_monthly: {len(unemployment_records)} records")
+        print(f"  - raw.states: {len(STATES_DATA)} records")
         print("\nNext steps:")
         print("  1. Run 'dbt run' to build analytics views")
         print("  2. Run 'dbt docs generate' to update documentation")

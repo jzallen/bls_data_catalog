@@ -9,10 +9,14 @@ This is a complete example of a data catalog metadata management system using db
 
 ## Data Source
 
-This example uses publicly available BLS (Bureau of Labor Statistics) data:
-- **Employment levels by state** (from Local Area Unemployment Statistics)
-- **Unemployment rates by state** (from LAUS)
+This example fetches real data from the BLS (Bureau of Labor Statistics) Public Data API:
+- **Employment levels by state** (LAUS Measure 03)
+- **Unemployment rates by state** (LAUS Measure 04)
+- **Labor force by state** (LAUS Measure 05)
+- **Unemployed counts by state** (LAUS Measure 06)
 - **State metadata** (FIPS codes, regions, divisions)
+
+Data is fetched for all 51 states (50 states + DC) for the last 3 years.
 
 ## Project Structure
 
@@ -20,41 +24,46 @@ This example uses publicly available BLS (Bureau of Labor Statistics) data:
 bls_data_catalog/
 ├── dbt_project.yml
 ├── profiles.yml
-├── data/                          # Seed files with sample BLS data
-│   ├── states.csv
-│   ├── employment_monthly.csv
-│   └── unemployment_monthly.csv
+├── bls_data.duckdb              # DuckDB database (created by load script)
 ├── models/
-│   ├── sources.yml                # Tables layer
-│   ├── views/                     # Views layer
+│   ├── sources.yml              # Tables layer
+│   ├── views/                   # Views layer
 │   │   ├── employment_cleaned.sql
 │   │   ├── unemployment_cleaned.sql
 │   │   └── state_employment_combined.sql
-│   ├── semantic_models.yml        # Reports layer
-│   └── exposures.yml              # Dashboards layer
+│   ├── semantic_models.yml      # Reports layer
+│   └── exposures.yml            # Dashboards layer
 └── scripts/
-    └── load_sample_data.py        # Generate sample BLS-like data
+    ├── load_sample_data.py      # Fetch real BLS data via API
+    ├── build_metadata_catalog.py
+    └── data_delivery_server.py
 ```
 
 ## Setup
 
 1. Install dependencies:
 ```bash
-pip install dbt-core dbt-duckdb
+pip install dbt-core dbt-duckdb requests
 ```
 
-2. Initialize the DuckDB database with sample data:
+2. Fetch real BLS data and load into DuckDB:
 ```bash
 python scripts/load_sample_data.py
 ```
 
-3. Run dbt:
+This will:
+- Fetch 3 years of LAUS data from the BLS Public Data API
+- Create `bls_data.duckdb` with raw employment, unemployment, and state data
+- No API key required (uses unauthenticated access)
+
+3. Run dbt to build analytics views:
 ```bash
 dbt deps
-dbt seed
 dbt run
 dbt compile
 ```
+
+Note: `dbt seed` is no longer needed since data is loaded directly to DuckDB by the load script.
 
 4. The compiled metadata will be in `target/manifest.json` and `target/semantic_manifest.json`
 
