@@ -8,13 +8,19 @@ tasks:
 
             # Install Pants build system
             echo "Installing Pants build system..."
-            curl --proto '=https' --tlsv1.2 -fsSL https://static.pantsbuild.org/setup/get-pants.sh | bash
+            mkdir -p "$HOME/.local/bin"
+            curl -L -o "$HOME/.local/bin/pants" https://github.com/pantsbuild/scie-pants/releases/latest/download/scie-pants-linux-x86_64
+            chmod +x "$HOME/.local/bin/pants"
             export PATH="$HOME/.local/bin:$PATH"
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 
             # Verify Pants installation
-            ~/.local/bin/pants --version
-            echo "Pants installed successfully!"
+            if [ -x "$HOME/.local/bin/pants" ]; then
+                echo "Pants binary installed successfully!"
+            else
+                echo "Pants installation failed!"
+                exit 1
+            fi
 
             # Install Bun runtime
             echo "Installing Bun runtime..."
