@@ -28,22 +28,21 @@ echo "✓ Virtual environment created"
 echo ""
 echo "Installing dependencies..."
 pip install --upgrade pip
-pip install dbt-core dbt-duckdb fastapi uvicorn[standard] duckdb
+pip install dbt-core dbt-duckdb fastapi uvicorn[standard] duckdb requests
 
 echo "✓ Dependencies installed"
 
-# Generate sample data
+# Load real BLS data directly to DuckDB
 echo ""
-echo "Generating sample BLS data..."
+echo "Loading BLS data from API..."
 python3 scripts/load_sample_data.py
 
-echo "✓ Sample data generated"
+echo "✓ BLS data loaded"
 
-# Run dbt
+# Run dbt (no seed needed - data already in DuckDB)
 echo ""
 echo "Running dbt..."
 dbt deps
-dbt seed --profiles-dir .
 dbt run --profiles-dir .
 dbt compile --profiles-dir .
 
