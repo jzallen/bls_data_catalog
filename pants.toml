@@ -1,8 +1,20 @@
 [GLOBAL]
 pants_version = "2.24.0"
+backend_packages = [
+    "pants.backend.python",
+    "pants.backend.experimental.python.lint.ruff.check",
+    "pants.backend.experimental.python.lint.ruff.format",
+]
 
 [anonymous-telemetry]
 enabled = false
 
 [python]
 interpreter_constraints = [">=3.11,<3.13"]
+enable_resolves = true
+
+[python.resolves]
+bls_data_catalog_env = "bls_data_catalog_env.lock"
+
+[ruff]
+config = "bls_data_catalog/pyproject.toml"
