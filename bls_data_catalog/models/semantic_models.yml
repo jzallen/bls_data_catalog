@@ -6,10 +6,14 @@ version: 2
 
 semantic_models:
   # Report 1: State Employment Overview
-  # METADATA: {"visualization_type": "table", "component": "StateEmploymentTable", "refresh_policy": "on_demand"}
   - name: state_employment_report
     description: "Employment metrics by state and time period"
     model: ref('state_employment_combined')
+    config:
+      meta:
+        visualization_type: "table"
+        component: "StateEmploymentTable"
+        refresh_policy: "on_demand"
 
     defaults:
       agg_time_dimension: year_month
@@ -83,10 +87,14 @@ semantic_models:
         expr: state_fips
 
   # Report 2: Regional Employment Trends
-  # METADATA: {"visualization_type": "line_chart", "component": "RegionalTrendChart", "refresh_policy": "on_demand"}
   - name: regional_employment_report
     description: "Regional aggregated employment metrics over time"
     model: ref('state_employment_combined')
+    config:
+      meta:
+        visualization_type: "line_chart"
+        component: "RegionalTrendChart"
+        refresh_policy: "on_demand"
 
     defaults:
       agg_time_dimension: year_month
@@ -140,6 +148,11 @@ metrics:
     label: "National Employment"
     type_params:
       measure: total_employment
+    config:
+      meta:
+        format: "number"
+        unit: "persons"
+        display_order: 1
 
   # Metric 2: Total Unemployed
   - name: national_unemployed
@@ -148,6 +161,11 @@ metrics:
     label: "Total Unemployed"
     type_params:
       measure: total_unemployed
+    config:
+      meta:
+        format: "number"
+        unit: "persons"
+        display_order: 2
 
   # Metric 3: Total Labor Force
   - name: national_labor_force
@@ -156,3 +174,8 @@ metrics:
     label: "Total Labor Force"
     type_params:
       measure: total_labor_force
+    config:
+      meta:
+        format: "number"
+        unit: "persons"
+        display_order: 3
