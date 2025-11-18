@@ -9,15 +9,16 @@
 //     "CPython<3.13,>=3.11"
 //   ],
 //   "generated_with_requirements": [
-//     "dbt-core>=1.6.0",
-//     "dbt-duckdb>=1.6.0",
-//     "duckdb>=0.9.0",
-//     "fastapi>=0.104.0",
-//     "numpy>=1.24.0",
-//     "pandas>=2.0.0",
-//     "pydantic>=2.0.0",
-//     "requests>=2.31.0",
-//     "uvicorn>=0.24.0"
+//     "dbt-core>=1.10.15",
+//     "dbt-duckdb>=1.10.0",
+//     "dbt-metricflow>=0.11.0",
+//     "duckdb>=1.4.1",
+//     "fastapi>=0.121.2",
+//     "numpy>=2.3.5",
+//     "pandas>=2.3.3",
+//     "pydantic>=2.12.4",
+//     "requests>=2.32.5",
+//     "uvicorn>=0.38.0"
 //   ],
 //   "manylinux": "manylinux2014",
 //   "requirement_constraints": [],
@@ -347,13 +348,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "981153a64e25f12d547d3426c367a4857371575ee7ad18df2a6183ab0545b2a6",
-              "url": "https://files.pythonhosted.org/packages/98/78/01c019cdb5d6498122777c1a43056ebb3ebfeef2076d9d026bfe15583b2b/click-8.3.1-py3-none-any.whl"
+              "hash": "61a3265b914e850b85317d0b3109c7f8cd35a670f963866005d6ef1d5175a12b",
+              "url": "https://files.pythonhosted.org/packages/85/32/10bb5764d90a8eee674e9dc6f4db6a0ab47c8c4d0d83c27f7c39ac415a4d/click-8.2.1-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "12ff4785d337a1bb490bb7e9c2b1ee5da3112e94a8622f26a6c77f5d2fc6842a",
-              "url": "https://files.pythonhosted.org/packages/3d/fa/656b739db8587d7b5dfa22e22ed02566950fbfbcdc20311993483657a5c0/click-8.3.1.tar.gz"
+              "hash": "27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202",
+              "url": "https://files.pythonhosted.org/packages/60/6c/8ca2efa64cf75a977a0d7fac081354553ebe483345c734fb6b6515d96bbc/click-8.2.1.tar.gz"
             }
           ],
           "project_name": "click",
@@ -361,7 +362,7 @@
             "colorama; platform_system == \"Windows\""
           ],
           "requires_python": ">=3.10",
-          "version": "8.3.1"
+          "version": "8.2.1"
         },
         {
           "artifacts": [
@@ -626,6 +627,39 @@
           "artifacts": [
             {
               "algorithm": "sha256",
+              "hash": "2bcc6f43afecc1cdc2e2a5738370bd091f92616ff9ab2f8825bafd2aabb26aa2",
+              "url": "https://files.pythonhosted.org/packages/38/9d/88e6599360338b01db4adf6887412055a63ce91b9e9539e04dd34052962b/dbt_metricflow-0.11.0-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "31e52da53c305b3b68f7bd2ae3060aab9bf22a1c8a310d9dee21da72e6e5b80e",
+              "url": "https://files.pythonhosted.org/packages/f0/a2/c1187af7a2c804c84da9ee5f54becdb0da4ab3386e656f7d78ac03848645/dbt_metricflow-0.11.0.tar.gz"
+            }
+          ],
+          "project_name": "dbt-metricflow",
+          "requires_dists": [
+            "click>=8.1.6",
+            "dbt-bigquery; extra == \"dbt-bigquery\"",
+            "dbt-core<1.11.0,>=1.10.4",
+            "dbt-databricks; extra == \"dbt-databricks\"",
+            "dbt-duckdb; extra == \"dbt-duckdb\"",
+            "dbt-postgres; extra == \"dbt-postgres\"",
+            "dbt-redshift; extra == \"dbt-redshift\"",
+            "dbt-semantic-interfaces",
+            "dbt-snowflake; extra == \"dbt-snowflake\"",
+            "dbt-trino; extra == \"dbt-trino\"",
+            "halo<0.1.0,>=0.0.31",
+            "jinja2<3.7.0,>=3.1.6",
+            "metricflow==0.209.0",
+            "update-checker<0.19.0,>=0.18.0"
+          ],
+          "requires_python": "<3.13,>=3.9",
+          "version": "0.11.0"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
               "hash": "f2345522f9f6ee9c14e576ab2aac010d7fa777c82919134fd7ef347a886331bb",
               "url": "https://files.pythonhosted.org/packages/ec/6b/e374dcb10ab208f2c7a5d3642ad9c9d7880674a98630495858fc004c0063/dbt_protos-1.0.382-py3-none-any.whl"
             },
@@ -646,18 +680,18 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "1b54c06ba89190a47a7f0563360930a0cce869e55b484ca09d261ade0e319155",
-              "url": "https://files.pythonhosted.org/packages/b3/82/41708b2b69d5fead88dea5ca0d863d6291da83ca6f1bd19246842d397e2b/dbt_semantic_interfaces-0.9.0-py3-none-any.whl"
+              "hash": "8710f2dc953087d8e37528442fc5f3e766ba5310fd520c0d61eedd33076aad38",
+              "url": "https://files.pythonhosted.org/packages/39/22/326152c9061981b76307553c48cce63ec2584c6bf742bd39aa55914009ab/dbt_semantic_interfaces-0.9.4.dev0-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "5c921257dce8bb51c9ffb5479f2bdd959e16ebfb98ee833de6daa70788c47271",
-              "url": "https://files.pythonhosted.org/packages/b0/91/c702d8fb143541fda10f5eb7a7a89f34bda38ee043ecb3e3653363d0c5a0/dbt_semantic_interfaces-0.9.0.tar.gz"
+              "hash": "0891fa94ced32133481435ec8d31a41b0c261f707fc51514a0861b069898515d",
+              "url": "https://files.pythonhosted.org/packages/ec/28/32c1f9ebf3841e8e2809463f2ccf6e407f9a5766a17bb59cd320a1ec1521/dbt_semantic_interfaces-0.9.4.dev0.tar.gz"
             }
           ],
           "project_name": "dbt-semantic-interfaces",
           "requires_dists": [
-            "click<9.0,>=7.0",
+            "click<8.3,>=7.0",
             "importlib-metadata<9,>=6.0",
             "jinja2<4,>=3.1.6",
             "jsonschema<5,>=4.0",
@@ -668,7 +702,7 @@
             "typing-extensions<5,>=4.4"
           ],
           "requires_python": ">=3.8",
-          "version": "0.9.0"
+          "version": "0.9.4.dev0"
         },
         {
           "artifacts": [
@@ -838,6 +872,37 @@
           "artifacts": [
             {
               "algorithm": "sha256",
+              "hash": "81f848f2904515d8cd359cc611faba817598d2feaac4027b266aa3eda7b3dde5",
+              "url": "https://files.pythonhosted.org/packages/00/be/d59db2d1d52697c6adc9eacaf50e8965b6345cc143f671e1ed068818d5cf/graphviz-0.20.3-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "09d6bc81e6a9fa392e7ba52135a9d49f1ed62526f96499325930e87ca1b5925d",
+              "url": "https://files.pythonhosted.org/packages/fa/83/5a40d19b8347f017e417710907f824915fba411a9befd092e52746b63e9f/graphviz-0.20.3.zip"
+            }
+          ],
+          "project_name": "graphviz",
+          "requires_dists": [
+            "coverage; extra == \"test\"",
+            "flake8; extra == \"dev\"",
+            "pep8-naming; extra == \"dev\"",
+            "pytest-cov; extra == \"test\"",
+            "pytest-mock>=3; extra == \"test\"",
+            "pytest<8.1,>=7; extra == \"test\"",
+            "sphinx-autodoc-typehints; extra == \"docs\"",
+            "sphinx-rtd-theme; extra == \"docs\"",
+            "sphinx<7,>=5; extra == \"docs\"",
+            "tox>=3; extra == \"dev\"",
+            "twine; extra == \"dev\"",
+            "wheel; extra == \"dev\""
+          ],
+          "requires_python": ">=3.8",
+          "version": "0.20.3"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
               "hash": "63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86",
               "url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl"
             },
@@ -851,6 +916,28 @@
           "requires_dists": [],
           "requires_python": ">=3.8",
           "version": "0.16.0"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "7b67a3521ee91d53b7152d4ee3452811e1d2a6321975137762eb3d70063cc9d6",
+              "url": "https://files.pythonhosted.org/packages/ee/48/d53580d30b1fabf25d0d1fcc3f5b26d08d2ac75a1890ff6d262f9f027436/halo-0.0.31.tar.gz"
+            }
+          ],
+          "project_name": "halo",
+          "requires_dists": [
+            "IPython==5.7.0; extra == \"ipython\"",
+            "backports.shutil-get-terminal-size>=1.0.0; python_version < \"3.3\"",
+            "colorama>=0.3.9",
+            "ipywidgets==7.1.0; extra == \"ipython\"",
+            "log-symbols>=0.0.14",
+            "six>=1.12.0",
+            "spinners>=0.0.24",
+            "termcolor>=1.1.0"
+          ],
+          "requires_python": ">=3.4",
+          "version": "0.0.31"
         },
         {
           "artifacts": [
@@ -1043,6 +1130,27 @@
           "artifacts": [
             {
               "algorithm": "sha256",
+              "hash": "4952106ff8b605ab7d5081dd2c7e6ca7374584eff7086f499c06edd1ce56dcca",
+              "url": "https://files.pythonhosted.org/packages/28/5d/d710c38be68b0fb54e645048fe359c3904cc3cb64b2de9d40e1712bf110c/log_symbols-0.0.14-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "cf0bbc6fe1a8e53f0d174a716bc625c4f87043cc21eb55dd8a740cfe22680556",
+              "url": "https://files.pythonhosted.org/packages/45/87/e86645d758a4401c8c81914b6a88470634d1785c9ad09823fa4a1bd89250/log_symbols-0.0.14.tar.gz"
+            }
+          ],
+          "project_name": "log-symbols",
+          "requires_dists": [
+            "colorama>=0.3.9",
+            "enum34==1.1.6; python_version < \"3.4\""
+          ],
+          "requires_python": null,
+          "version": "0.0.14"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
               "hash": "77f0643abe7495da77fb436f50f8dab76dbc6e5fd25d39589a0f1fe6548bfa2b",
               "url": "https://files.pythonhosted.org/packages/89/e0/4486f11e51bbba8b0c041098859e869e304d1c261e59244baa3d295d47b7/markupsafe-3.0.3-cp312-cp312-musllinux_1_2_x86_64.whl"
             },
@@ -1156,6 +1264,59 @@
           ],
           "requires_python": ">=3.8",
           "version": "3.14"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "1bebde4638b054157c06fc10700e85ff7a7bf775e3cde24922c7b437a445204b",
+              "url": "https://files.pythonhosted.org/packages/a8/4c/58eb89edb3f4535b98de0366d15efc74069feae7ec32271a3939ab9348af/metricflow-0.209.0-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "58187952eb2e96f0c33b4ceea2701572555fabf435eea44ca24fcba7fb4c53f9",
+              "url": "https://files.pythonhosted.org/packages/4b/d3/cf47af37c2109738fe69abb803b5301726b4e923ecd1758834e28147a4e9/metricflow-0.209.0.tar.gz"
+            }
+          ],
+          "project_name": "metricflow",
+          "requires_dists": [
+            "black<24,>=23.3; extra == \"dev-env-requirements\"",
+            "click>=8.1.6; extra == \"dev-env-requirements\"",
+            "dbt-core<1.11.0,>=1.10.4; extra == \"dev-env-requirements\"",
+            "dbt-duckdb<1.9.0,>=1.8.0; extra == \"dev-env-requirements\"",
+            "dbt-semantic-interfaces==0.9.4.dev0",
+            "duckdb!=1.2.1,<1.4.0; extra == \"dev-env-requirements\"",
+            "graphviz<0.21,>=0.18.2",
+            "halo<0.1.0,>=0.0.31; extra == \"dev-env-requirements\"",
+            "httpx<0.25,>=0.24; extra == \"dev-env-requirements\"",
+            "hypothesis<7,>=6.87; extra == \"dev-env-requirements\"",
+            "isort<6,>=5.12; extra == \"dev-env-requirements\"",
+            "jinja2<3.7.0,>=3.1.6",
+            "more-itertools<11.0.0,>=10.0.0",
+            "mypy<1.8.0,>=1.7.0; extra == \"dev-env-requirements\"",
+            "pre-commit<3.3.0,>=3.2.2; extra == \"dev-env-requirements\"",
+            "pydantic<2,>=1.10; extra == \"dev-env-requirements\"",
+            "pydantic<3.0,>=1.10.0",
+            "pympler<=2.0,>=1.1; extra == \"dev-env-requirements\"",
+            "pytest-mock<3.15.0,>=3.14.0; extra == \"dev-env-requirements\"",
+            "pytest-xdist<3.7.0,>=3.6.0; extra == \"dev-env-requirements\"",
+            "pytest<9.0.0,>=8.0.0; extra == \"dev-env-requirements\"",
+            "python-dateutil<2.10.0,>=2.9.0",
+            "pyyaml<7.0.0,>=6.0; extra == \"dev-env-requirements\"",
+            "rapidfuzz<4.0,>=3.0",
+            "tabulate>=0.8.9",
+            "tabulate>=0.8.9; extra == \"dev-env-requirements\"",
+            "termcolor<4.0,>=3.0; extra == \"dev-env-requirements\"",
+            "types-jinja2<3,>=2.11; extra == \"dev-env-requirements\"",
+            "types-jsonschema<5,>=4.17; extra == \"dev-env-requirements\"",
+            "types-python-dateutil; extra == \"dev-env-requirements\"",
+            "types-pyyaml; extra == \"dev-env-requirements\"",
+            "types-tabulate; extra == \"dev-env-requirements\"",
+            "typing-extensions<5.0,>=4.4",
+            "update-checker<0.19.0,>=0.18.0; extra == \"dev-env-requirements\""
+          ],
+          "requires_python": "<3.13,>=3.9",
+          "version": "0.209.0"
         },
         {
           "artifacts": [
@@ -2049,6 +2210,121 @@
           "artifacts": [
             {
               "algorithm": "sha256",
+              "hash": "1e6eefec45625c634926a9fd46c9e4f31118ac8f3156fff9494422cee45207e6",
+              "url": "https://files.pythonhosted.org/packages/22/20/9d30b4a1ab26aac22fff17d21dec7e9089ccddfe25151d0a8bb57001dc3d/rapidfuzz-3.14.3-pp311-pypy311_pp73-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "769f31c60cd79420188fcdb3c823227fc4a6deb35cafec9d14045c7f6743acae",
+              "url": "https://files.pythonhosted.org/packages/10/b7/f9c44a99269ea5bf6fd6a40b84e858414b6e241288b9f2b74af470d222b1/rapidfuzz-3.14.3-cp311-cp311-manylinux_2_31_armv7l.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "02821366d928e68ddcb567fed8723dad7ea3a979fada6283e6914d5858674850",
+              "url": "https://files.pythonhosted.org/packages/14/2a/0f2de974ececad873865c6bb3ea3ad07c976ac293d5025b2d73325aac1d4/rapidfuzz-3.14.3-cp311-cp311-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "e6c31a4aa68cfa75d7eede8b0ed24b9e458447db604c2db53f358be9843d81d3",
+              "url": "https://files.pythonhosted.org/packages/2d/ab/f1181f500c32c8fcf7c966f5920c7e56b9b1d03193386d19c956505c312d/rapidfuzz-3.14.3-cp311-cp311-macosx_11_0_arm64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "6c5f545f454871e6af05753a0172849c82feaf0f521c5ca62ba09e1b382d6382",
+              "url": "https://files.pythonhosted.org/packages/30/83/80d22997acd928eda7deadc19ccd15883904622396d6571e935993e0453a/rapidfuzz-3.14.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "442cba39957a008dfc5bdef21a9c3f4379e30ffb4e41b8555dbaf4887eca9300",
+              "url": "https://files.pythonhosted.org/packages/30/d2/89d65d4db4bb931beade9121bc71ad916b5fa9396e807d11b33731494e8e/rapidfuzz-3.14.3-pp311-pypy311_pp73-macosx_11_0_arm64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "fa7c8f26f009f8c673fbfb443792f0cf8cf50c4e18121ff1e285b5e08a94fbdb",
+              "url": "https://files.pythonhosted.org/packages/36/d9/31b33512015c899f4a6e6af64df8dfe8acddf4c8b40a4b3e0e6e1bcd00e5/rapidfuzz-3.14.3-cp312-cp312-macosx_11_0_arm64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "07aa0b5d8863e3151e05026a28e0d924accf0a7a3b605da978f0359bb804df43",
+              "url": "https://files.pythonhosted.org/packages/5b/cf/9f49831085a16384695f9fb096b99662f589e30b89b4a589a1ebc1a19d34/rapidfuzz-3.14.3-cp312-cp312-manylinux_2_31_armv7l.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "dea2d113e260a5da0c4003e0a5e9fdf24a9dc2bb9eaa43abd030a1e46ce7837d",
+              "url": "https://files.pythonhosted.org/packages/76/25/5b0a33ad3332ee1213068c66f7c14e9e221be90bab434f0cb4defa9d6660/rapidfuzz-3.14.3-cp311-cp311-macosx_10_9_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "1faa0f8f76ba75fd7b142c984947c280ef6558b5067af2ae9b8729b0a0f99ede",
+              "url": "https://files.pythonhosted.org/packages/85/33/cd87d92b23f0b06e8914a61cea6850c6d495ca027f669fab7a379041827a/rapidfuzz-3.14.3-pp311-pypy311_pp73-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "57f878330c8d361b2ce76cebb8e3e1dc827293b6abf404e67d53260d27b5d941",
+              "url": "https://files.pythonhosted.org/packages/a9/67/2ee6f8de6e2081ccd560a571d9c9063184fe467f484a17fa90311a7f4a2e/rapidfuzz-3.14.3-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "948b00e8476a91f510dd1ec07272efc7d78c275d83b630455559671d4e33b678",
+              "url": "https://files.pythonhosted.org/packages/b4/cc/2c97beb2b1be2d7595d805682472f1b1b844111027d5ad89b65e16bdbaaa/rapidfuzz-3.14.3-cp311-cp311-musllinux_1_2_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "73b07566bc7e010e7b5bd490fb04bb312e820970180df6b5655e9e6224c137db",
+              "url": "https://files.pythonhosted.org/packages/c8/0f/41ee8034e744b871c2e071ef0d360686f5ccfe5659f4fd96c3ec406b3c8b/rapidfuzz-3.14.3-cp312-cp312-musllinux_1_2_aarch64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "7cf174b52cb3ef5d49e45d0a1133b7e7d0ecf770ed01f97ae9962c5c91d97d23",
+              "url": "https://files.pythonhosted.org/packages/c9/33/b5bd6475c7c27164b5becc9b0e3eb978f1e3640fea590dd3dced6006ee83/rapidfuzz-3.14.3-pp311-pypy311_pp73-macosx_10_15_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "2491937177868bc4b1e469087601d53f925e8d270ccc21e07404b4b5814b7b5f",
+              "url": "https://files.pythonhosted.org/packages/d3/28/9d808fe62375b9aab5ba92fa9b29371297b067c2790b2d7cda648b1e2f8d/rapidfuzz-3.14.3.tar.gz"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "6de00eb84c71476af7d3110cf25d8fe7c792d7f5fa86764ef0b4ca97e78ca3ed",
+              "url": "https://files.pythonhosted.org/packages/da/86/280038b6b0c2ccec54fb957c732ad6b41cc1fd03b288d76545b9cf98343f/rapidfuzz-3.14.3-cp312-cp312-musllinux_1_2_armv7l.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "cfe8df315ab4e6db4e1be72c5170f8e66021acde22cd2f9d04d2058a9fd8162e",
+              "url": "https://files.pythonhosted.org/packages/ed/69/309d8f3a0bb3031fd9b667174cc4af56000645298af7c2931be5c3d14bb4/rapidfuzz-3.14.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "54fa03062124e73086dae66a3451c553c1e20a39c077fd704dc7154092c34c63",
+              "url": "https://files.pythonhosted.org/packages/f2/0a/3b3137abac7f19c9220e14cd7ce993e35071a7655e7ef697785a3edfea1a/rapidfuzz-3.14.3-cp311-cp311-musllinux_1_2_aarch64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "834d1e818005ed0d4ae38f6b87b86fad9b0a74085467ece0727d20e15077c094",
+              "url": "https://files.pythonhosted.org/packages/f3/b6/983805a844d44670eaae63831024cdc97ada4e9c62abc6b20703e81e7f9b/rapidfuzz-3.14.3-cp311-cp311-musllinux_1_2_armv7l.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "d7843a1abf0091773a530636fdd2a49a41bcae22f9910b86b4f903e76ddc82dc",
+              "url": "https://files.pythonhosted.org/packages/fa/7b/05c26f939607dca0006505e3216248ae2de631e39ef94dd63dbbf0860021/rapidfuzz-3.14.3-cp312-cp312-musllinux_1_2_x86_64.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "685c93ea961d135893b5984a5a9851637d23767feabe414ec974f43babbd8226",
+              "url": "https://files.pythonhosted.org/packages/fa/8e/3c215e860b458cfbedb3ed73bc72e98eb7e0ed72f6b48099604a7a3260c2/rapidfuzz-3.14.3-cp312-cp312-macosx_10_13_x86_64.whl"
+            }
+          ],
+          "project_name": "rapidfuzz",
+          "requires_dists": [
+            "numpy; extra == \"all\""
+          ],
+          "requires_python": ">=3.10",
+          "version": "3.14.3"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
               "hash": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
               "url": "https://files.pythonhosted.org/packages/2c/58/ca301544e1fa93ed4f80d724bf5b194f6e4b945841c5bfd555878eea9fcb/referencing-0.37.0-py3-none-any.whl"
             },
@@ -2348,6 +2624,26 @@
           "artifacts": [
             {
               "algorithm": "sha256",
+              "hash": "2fa30d0b72c9650ad12bbe031c9943b8d441e41b4f5602b0ec977a19f3290e98",
+              "url": "https://files.pythonhosted.org/packages/9f/8e/3310207a68118000ca27ac878b8386123628b335ecb3d4bec4743357f0d1/spinners-0.0.24-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "1eb6aeb4781d72ab42ed8a01dcf20f3002bf50740d7154d12fb8c9769bf9e27f",
+              "url": "https://files.pythonhosted.org/packages/d3/91/bb331f0a43e04d950a710f402a0986a54147a35818df0e1658551c8d12e1/spinners-0.0.24.tar.gz"
+            }
+          ],
+          "project_name": "spinners",
+          "requires_dists": [
+            "enum34==1.1.6; python_version < \"3.4\""
+          ],
+          "requires_python": null,
+          "version": "0.0.24"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
               "hash": "cf2196ed3418f3ba5de6af7e82c694a9fbdbfecccdfc72e281548517081f16ca",
               "url": "https://files.pythonhosted.org/packages/a9/5c/bfd6bd0bf979426d405cc6e71eceb8701b148b16c21d2dc3c261efc61c7b/sqlparse-0.5.3-py3-none-any.whl"
             },
@@ -2391,6 +2687,47 @@
           ],
           "requires_python": ">=3.9",
           "version": "0.49.3"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f",
+              "url": "https://files.pythonhosted.org/packages/40/44/4a5f08c96eb108af5cb50b41f76142f0afa346dfa99d5296fe7202a11854/tabulate-0.9.0-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c",
+              "url": "https://files.pythonhosted.org/packages/ec/fe/802052aecb21e3797b8f7902564ab6ea0d60ff8ca23952079064155d1ae1/tabulate-0.9.0.tar.gz"
+            }
+          ],
+          "project_name": "tabulate",
+          "requires_dists": [
+            "wcwidth; extra == \"widechars\""
+          ],
+          "requires_python": ">=3.7",
+          "version": "0.9.0"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "a10343879eba4da819353c55cb8049b0933890c2ebf9ad5d3ecd2bb32ea96ea6",
+              "url": "https://files.pythonhosted.org/packages/f9/d5/141f53d7c1eb2a80e6d3e9a390228c3222c27705cbe7f048d3623053f3ca/termcolor-3.2.0-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "610e6456feec42c4bcd28934a8c87a06c3fa28b01561d46aa09a9881b8622c58",
+              "url": "https://files.pythonhosted.org/packages/87/56/ab275c2b56a5e2342568838f0d5e3e66a32354adcc159b495e374cda43f5/termcolor-3.2.0.tar.gz"
+            }
+          ],
+          "project_name": "termcolor",
+          "requires_dists": [
+            "pytest-cov; extra == \"tests\"",
+            "pytest; extra == \"tests\""
+          ],
+          "requires_python": ">=3.10",
+          "version": "3.2.0"
         },
         {
           "artifacts": [
@@ -2465,6 +2802,32 @@
           "requires_dists": [],
           "requires_python": ">=2",
           "version": "2025.2"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "cbba64760a36fe2640d80d85306e8fe82b6816659190993b7bdabadee4d4bbfd",
+              "url": "https://files.pythonhosted.org/packages/0c/ba/8dd7fa5f0b1c6a8ac62f8f57f7e794160c1f86f31c6d0fb00f582372a3e4/update_checker-0.18.0-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "6a2d45bb4ac585884a6b03f9eade9161cedd9e8111545141e9aa9058932acb13",
+              "url": "https://files.pythonhosted.org/packages/5c/0b/1bec4a6cc60d33ce93d11a7bcf1aeffc7ad0aa114986073411be31395c6f/update_checker-0.18.0.tar.gz"
+            }
+          ],
+          "project_name": "update-checker",
+          "requires_dists": [
+            "black; extra == \"dev\"",
+            "black; extra == \"lint\"",
+            "flake8; extra == \"dev\"",
+            "flake8; extra == \"lint\"",
+            "pytest>=2.7.3; extra == \"dev\"",
+            "pytest>=2.7.3; extra == \"test\"",
+            "requests>=2.3.0"
+          ],
+          "requires_python": null,
+          "version": "0.18.0"
         },
         {
           "artifacts": [
@@ -2568,15 +2931,16 @@
   "pip_version": "24.2",
   "prefer_older_binary": false,
   "requirements": [
-    "dbt-core>=1.6.0",
-    "dbt-duckdb>=1.6.0",
-    "duckdb>=0.9.0",
-    "fastapi>=0.104.0",
-    "numpy>=1.24.0",
-    "pandas>=2.0.0",
-    "pydantic>=2.0.0",
-    "requests>=2.31.0",
-    "uvicorn>=0.24.0"
+    "dbt-core>=1.10.15",
+    "dbt-duckdb>=1.10.0",
+    "dbt-metricflow>=0.11.0",
+    "duckdb>=1.4.1",
+    "fastapi>=0.121.2",
+    "numpy>=2.3.5",
+    "pandas>=2.3.3",
+    "pydantic>=2.12.4",
+    "requests>=2.32.5",
+    "uvicorn>=0.38.0"
   ],
   "requires_python": [
     "<3.13,>=3.11"
