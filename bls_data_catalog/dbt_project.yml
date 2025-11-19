@@ -21,6 +21,9 @@ seeds:
 
 models:
   bls_data_catalog:
-    views:
+    staging:
+      +materialized: view
+      +schema: analytics
+    metrics:
       +materialized: view
       +schema: analytics

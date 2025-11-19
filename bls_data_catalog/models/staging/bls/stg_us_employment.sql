@@ -9,7 +9,7 @@
 -- Data spans 1941-2010 with annual employment statistics
 
 select
-    nation,
+    'USA' as nation,
     -- Keep original year as integer for categorical dimension
     year as year_number,
     -- Convert year to date for MetricFlow time dimension
@@ -24,5 +24,5 @@ select
     unemployed,
     unemployed_percent as unemployment_rate,
     not_in_labor as not_in_labor_force,
-    footnotes
+    null as footnotes
 from {{ ref('us_employment') }}
