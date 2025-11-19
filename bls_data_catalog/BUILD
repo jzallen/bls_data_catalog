@@ -9,5 +9,6 @@ python_requirements(
 python_sources(
     name="scripts",
     sources=["scripts/**/*.py"],
+    resolve="bls_data_catalog_env",
     dependencies=[":reqs"],
 )

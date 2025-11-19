@@ -13,3 +13,7 @@ numpy>=2.3.5
 dbt-core>=1.10.15
 dbt-duckdb>=1.10.0
 dbt-metricflow>=0.11.0
+
+# Testing dependencies
+pytest>=8.3.4
+pytest-mock>=3.14.0

@@ -2,10 +2,9 @@ version: 2
 
 seeds:
   - name: us_employment
-    description: "US employment statistics from datahub.io/core/employment-us (1941-2010)"
+    description: "US employment statistics from github.com/datasets/employment-us (1941-2025)"
     config:
       column_types:
-        nation: varchar
         year: integer
         population: integer
         labor_force: integer
@@ -17,4 +16,3 @@ seeds:
         unemployed: integer
         unemployed_percent: double
         not_in_labor: integer
-        footnotes: varchar
