@@ -1,0 +1,156 @@
+semantic_models:
+  - name: us_employment
+    description: |
+      US employment statistics from 1941-2010.
+      Annual data covering population, labor force, employment, and unemployment metrics.
+      All count measures are in thousands of persons.
+    model: ref('stg_us_employment')
+
+    defaults:
+      agg_time_dimension: reporting_year
+
+    entities:
+      - name: nation
+        type: primary
+        expr: nation
+
+    dimensions:
+      - name: reporting_year
+        type: time
+        type_params:
+          time_granularity: year
+        expr: year
+
+      - name: year_number
+        type: categorical
+        expr: year_number
+        description: "Year as integer for cleaner display"
+
+      - name: has_footnotes
+        type: categorical
+        expr: "case when footnotes is not null and footnotes != '' then true else false end"
+
+    measures:
+      # Population measures (in thousands)
+      - name: population
+        description: "Civilian noninstitutional population"
+        agg: sum
+        expr: population
+        create_metric: true
+
+      - name: labor_force
+        description: "Civilian labor force total"
+        agg: sum
+        expr: labor_force
+        create_metric: true
+
+      - name: not_in_labor_force
+        description: "Population not in labor force"
+        agg: sum
+        expr: not_in_labor_force
+        create_metric: true
+
+      # Employment measures (in thousands)
+      - name: employed_total
+        description: "Total employed persons"
+        agg: sum
+        expr: employed_total
+        create_metric: true
+
+      - name: employed_agriculture
+        description: "Persons employed in agriculture"
+        agg: sum
+        expr: employed_agriculture
+        create_metric: true
+
+      - name: employed_nonagriculture
+        description: "Persons employed in non-agriculture"
+        agg: sum
+        expr: employed_nonagriculture
+        create_metric: true
+
+      - name: unemployed
+        description: "Total unemployed persons"
+        agg: sum
+        expr: unemployed
+        create_metric: true
+
+      # Pre-calculated percentage measures (already percentages in source)
+      - name: labor_force_participation_rate
+        description: "Labor force as % of population"
+        agg: average
+        expr: labor_force_participation_rate
+        create_metric: true
+
+      - name: employment_population_ratio
+        description: "Employed as % of population"
+        agg: average
+        expr: employment_population_ratio
+        create_metric: true
+
+      - name: unemployment_rate
+        description: "Unemployed as % of labor force"
+        agg: average
+        expr: unemployment_rate
+        create_metric: true
+
+metrics:
+  # Sectoral metrics
+  - name: agriculture_employment_share
+    description: "Agricultural employment as percentage of total employment"
+    type: ratio
+    type_params:
+      numerator:
+        name: employed_agriculture
+      denominator:
+        name: employed_total
+    label: "Agriculture Employment Share (%)"
+
+  - name: nonagriculture_employment_share
+    description: "Non-agricultural employment as percentage of total employment"
+    type: ratio
+    type_params:
+      numerator:
+        name: employed_nonagriculture
+      denominator:
+        name: employed_total
+    label: "Non-Agriculture Employment Share (%)"
+
+  # Economic indicators
+  - name: employment_per_capita
+    description: "Employed persons per capita (ratio of employed to total population)"
+    type: ratio
+    type_params:
+      numerator:
+        name: employed_total
+      denominator:
+        name: population
+    label: "Employment Per Capita"
+
+  # Growth metrics (derived)
+  - name: employment_growth_rate
+    description: "Year-over-year employment growth rate"
+    type: derived
+    type_params:
+      expr: "(employed_total - lag(employed_total, 1) over (order by metric_time__year)) / lag(employed_total, 1) over (order by metric_time__year) * 100"
+      metrics:
+        - name: employed_total
+    label: "Employment Growth Rate (YoY %)"
+
+  - name: labor_force_growth_rate
+    description: "Year-over-year labor force growth rate"
+    type: derived
+    type_params:
+      expr: "(labor_force - lag(labor_force, 1) over (order by metric_time__year)) / lag(labor_force, 1) over (order by metric_time__year) * 100"
+      metrics:
+        - name: labor_force
+    label: "Labor Force Growth Rate (YoY %)"
+
+  - name: sectoral_shift_rate
+    description: "Year-over-year change in agricultural employment share"
+    type: derived
+    type_params:
+      expr: "agriculture_employment_share - lag(agriculture_employment_share, 1) over (order by metric_time__year)"
+      metrics:
+        - name: agriculture_employment_share
+    label: "Sectoral Shift Rate (pp change)"

@@ -1,0 +1,20 @@
+version: 2
+
+seeds:
+  - name: us_employment
+    description: "US employment statistics from datahub.io/core/employment-us (1941-2010)"
+    config:
+      column_types:
+        nation: varchar
+        year: integer
+        population: integer
+        labor_force: integer
+        population_percent: double
+        employed_total: integer
+        employed_percent: double
+        agrictulture_ratio: integer
+        nonagriculture_ratio: integer
+        unemployed: integer
+        unemployed_percent: double
+        not_in_labor: integer
+        footnotes: varchar

@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: metricflow_time_spine
+    description: "Time spine for MetricFlow semantic layer covering 1941-2010"
+    config:
+      meta:
+        metricflow_time_spine: true

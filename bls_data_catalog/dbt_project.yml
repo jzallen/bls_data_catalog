@@ -18,7 +18,6 @@ clean-targets:
 seeds:
   bls_data_catalog:
     +schema: raw
-    +materialized: table
 
 models:
   bls_data_catalog:
