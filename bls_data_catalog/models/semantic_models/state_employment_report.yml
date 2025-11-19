@@ -58,24 +58,25 @@ semantic_models:
         expr: year_quarter
 
     # Measures (aggregatable fields)
+    # Note: BLS LAUS data returns values in thousands
     measures:
       - name: total_employment
-        description: "Total employment level"
+        description: "Total employment level (in thousands of persons)"
         agg: sum
-        expr: employment_count
+        expr: employment_level
 
       - name: total_unemployed
-        description: "Total unemployed persons"
+        description: "Total unemployed persons (in thousands)"
         agg: sum
-        expr: unemployed_count
+        expr: unemployed
 
       - name: total_labor_force
-        description: "Total labor force"
+        description: "Total labor force (in thousands of persons)"
         agg: sum
-        expr: labor_force_count
+        expr: labor_force
 
       - name: avg_unemployment_rate
-        description: "Average unemployment rate"
+        description: "Average unemployment rate (as percentage)"
         agg: average
         expr: unemployment_rate
 
@@ -87,7 +88,7 @@ semantic_models:
 # Metrics derived from this semantic model
 metrics:
   - name: total_employment
-    description: "Total employment across selected dimensions"
+    description: "Total employment across selected dimensions (in thousands)"
     type: simple
     label: "Total Employment"
     type_params:
@@ -95,11 +96,11 @@ metrics:
     config:
       meta:
         format: "number"
-        unit: "persons"
+        unit: "thousands"
         display_order: 1
 
   - name: total_unemployed
-    description: "Total unemployed persons across selected dimensions"
+    description: "Total unemployed persons across selected dimensions (in thousands)"
     type: simple
     label: "Total Unemployed"
     type_params:
@@ -107,11 +108,11 @@ metrics:
     config:
       meta:
         format: "number"
-        unit: "persons"
+        unit: "thousands"
         display_order: 2
 
   - name: total_labor_force
-    description: "Total labor force across selected dimensions"
+    description: "Total labor force across selected dimensions (in thousands)"
     type: simple
     label: "Total Labor Force"
     type_params:
@@ -119,7 +120,7 @@ metrics:
     config:
       meta:
         format: "number"
-        unit: "persons"
+        unit: "thousands"
         display_order: 3
 
   - name: avg_unemployment_rate

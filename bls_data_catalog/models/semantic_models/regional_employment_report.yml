@@ -37,24 +37,24 @@ semantic_models:
 
     measures:
       - name: regional_employment
-        description: "Total regional employment"
+        description: "Total regional employment (in thousands of persons)"
         agg: sum
-        expr: employment_count
+        expr: employment_level
 
       - name: regional_unemployment_rate
-        description: "Regional weighted average unemployment rate"
+        description: "Regional weighted average unemployment rate (as percentage)"
         agg: average
         expr: unemployment_rate
 
       - name: regional_labor_force
-        description: "Total regional labor force"
+        description: "Total regional labor force (in thousands of persons)"
         agg: sum
-        expr: labor_force_count
+        expr: labor_force
 
 # Metrics derived from regional employment report
 metrics:
   - name: regional_employment
-    description: "Total employment by region"
+    description: "Total employment by region (in thousands)"
     type: simple
     label: "Regional Employment"
     type_params:
@@ -62,11 +62,11 @@ metrics:
     config:
       meta:
         format: "number"
-        unit: "persons"
+        unit: "thousands"
         display_order: 1
 
   - name: regional_unemployment_rate
-    description: "Average unemployment rate by region"
+    description: "Average unemployment rate by region (as percentage)"
     type: simple
     label: "Regional Unemployment Rate"
     type_params:
@@ -78,7 +78,7 @@ metrics:
         display_order: 2
 
   - name: regional_labor_force
-    description: "Total labor force by region"
+    description: "Total labor force by region (in thousands)"
     type: simple
     label: "Regional Labor Force"
     type_params:
@@ -86,5 +86,5 @@ metrics:
     config:
       meta:
         format: "number"
-        unit: "persons"
+        unit: "thousands"
         display_order: 3

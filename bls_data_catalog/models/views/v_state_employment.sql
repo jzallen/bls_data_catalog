@@ -47,14 +47,11 @@ select
     e.year,
     e.month,
     e.year_quarter,
-    e.employment_level,
-    u.unemployment_rate,
-    u.labor_force,
-    u.unemployed,
-    -- Calculated fields
-    e.employment_level * 1000.0 as employment_count,
-    u.unemployed * 1000.0 as unemployed_count,
-    u.labor_force * 1000.0 as labor_force_count
+    -- Raw BLS values (already in thousands)
+    e.employment_level,  -- Employment level in thousands
+    u.unemployment_rate,  -- Unemployment rate as percentage
+    u.labor_force,  -- Labor force in thousands
+    u.unemployed  -- Unemployed persons in thousands
 from employment e
 inner join unemployment u
     on e.state_fips = u.state_fips
