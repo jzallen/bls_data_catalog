@@ -83,6 +83,10 @@ tmp/
 temp/
 *.tmp
 
+# Core dumps
+core
+core.*
+
 # DuckDB databases
 *.duckdb
 *.duckdb.wal
@@ -92,3 +96,10 @@ target/
 dbt_packages/
 logs/
 .user.yml
+dbt_modules/  # Legacy dbt packages directory
+
+# dbt Cloud artifacts
+.dbt/
+
+# Note: profiles.yml is checked in because it uses local DuckDB without credentials
+# For production projects with database credentials, profiles.yml should be in .gitignore
