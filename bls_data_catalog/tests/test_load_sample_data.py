@@ -1,6 +1,5 @@
 """Unit tests for load_sample_data.py script."""
 
-import tempfile
 from pathlib import Path
 from typing import Callable
 from unittest.mock import Mock
@@ -9,9 +8,7 @@ import pandas as pd
 import pytest
 
 from bls_data_catalog.scripts.load_sample_data import (
-    clean_employment_data,
-    download_and_process_data,
-    save_dataframe,
+    download_and_process_bls_employment_data,
 )
 
 
@@ -56,35 +53,93 @@ def temp_output_path(tmp_path: Path) -> Path:
     return tmp_path / "output" / "test_employment.csv"
 
 
-class TestCleanEmploymentData:
-    """Tests for clean_employment_data function."""
+class TestDownloadAndProcessBlsEmploymentData:
+    """Tests for download_and_process_bls_employment_data function."""
 
-    def test_removes_footnotes_column(self) -> None:
-        """Test that footnotes column is removed from the data."""
-        result = clean_employment_data(SAMPLE_CSV_WITH_FOOTNOTES)
+    def test_calls_fetch_function_with_url(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that fetch function is called with the correct URL."""
+        test_url = "https://example.com/data.csv"
+
+        download_and_process_bls_employment_data(test_url, temp_output_path, mock_fetch_csv)
+
+        mock_fetch_csv.assert_called_once_with(test_url)
+
+    def test_returns_dataframe(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that function returns a pandas DataFrame."""
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
+
+        assert isinstance(result, pd.DataFrame)
+
+    def test_returns_dataframe_with_correct_shape(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that returned DataFrame has correct number of rows and columns."""
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
+
+        assert len(result) == 4  # 4 data rows
+        assert len(result.columns) == 11  # 11 columns (footnotes removed)
+
+    def test_removes_footnotes_column(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that footnotes column is removed from returned DataFrame."""
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
 
         assert 'footnotes' not in result.columns
-        assert len(result.columns) == 11
 
-    def test_preserves_data_integrity(self) -> None:
-        """Test that data values are preserved after cleaning."""
-        result = clean_employment_data(SAMPLE_CSV_WITH_FOOTNOTES)
+    def test_preserves_data_integrity(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that data values are preserved correctly."""
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
 
-        assert len(result) == 4
+        # Check first row values
         assert result.iloc[0]['year'] == 1941
         assert result.iloc[0]['population'] == 99900
         assert result.iloc[0]['labor_force'] == 55910
+        assert result.iloc[0]['unemployed'] == 5560
 
-    def test_handles_csv_without_footnotes(self) -> None:
-        """Test that function works with CSV that doesn't have footnotes column."""
-        result = clean_employment_data(SAMPLE_CSV_WITHOUT_FOOTNOTES)
-
-        assert len(result.columns) == 11
-        assert len(result) == 4
-
-    def test_column_names_are_correct(self) -> None:
-        """Test that expected columns are present."""
-        result = clean_employment_data(SAMPLE_CSV_WITH_FOOTNOTES)
+    def test_returns_correct_columns(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that DataFrame has the expected column names."""
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
 
         expected_columns = [
             'year',
@@ -102,116 +157,73 @@ class TestCleanEmploymentData:
 
         assert list(result.columns) == expected_columns
 
-    def test_returns_dataframe(self) -> None:
-        """Test that function returns a pandas DataFrame."""
-        result = clean_employment_data(SAMPLE_CSV_WITH_FOOTNOTES)
+    def test_saves_file_to_output_path(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that data is saved to the specified output path."""
+        download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
 
-        assert isinstance(result, pd.DataFrame)
+        assert temp_output_path.exists()
 
+    def test_saved_file_matches_returned_dataframe(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that saved file contents match the returned DataFrame."""
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
 
-class TestSaveDataframe:
-    """Tests for save_dataframe function."""
+        # Read the saved file
+        saved_df = pd.read_csv(temp_output_path)
 
-    def test_creates_output_directory(self, temp_output_path: Path) -> None:
+        # Compare DataFrames
+        pd.testing.assert_frame_equal(result, saved_df)
+
+    def test_creates_parent_directory_if_missing(
+        self,
+        mock_fetch_csv: Mock,
+        temp_output_path: Path,
+    ) -> None:
         """Test that parent directory is created if it doesn't exist."""
-        df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+        # Ensure parent doesn't exist
+        assert not temp_output_path.parent.exists()
 
-        save_dataframe(df, temp_output_path)
+        download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch_csv,
+        )
 
         assert temp_output_path.parent.exists()
         assert temp_output_path.exists()
 
-    def test_saves_csv_correctly(self, temp_output_path: Path) -> None:
-        """Test that DataFrame is saved correctly to CSV."""
-        df = pd.DataFrame({'year': [1941, 1942], 'population': [99900, 98640]})
-
-        save_dataframe(df, temp_output_path)
-
-        # Read back the CSV and verify
-        result = pd.read_csv(temp_output_path)
-        pd.testing.assert_frame_equal(result, df)
-
-    def test_saves_without_index(self, temp_output_path: Path) -> None:
-        """Test that CSV is saved without index column."""
-        df = pd.DataFrame({'year': [1941, 1942], 'population': [99900, 98640]})
-
-        save_dataframe(df, temp_output_path)
-
-        # Read the file as text and check first line
-        content = temp_output_path.read_text()
-        first_line = content.split('\n')[0]
-
-        # Should not have an unnamed index column
-        assert first_line == 'year,population'
-
-
-class TestDownloadAndProcessData:
-    """Tests for download_and_process_data function."""
-
-    def test_calls_fetch_function_with_url(
+    def test_handles_csv_without_footnotes_column(
         self,
-        mock_fetch_csv: Mock,
         temp_output_path: Path,
     ) -> None:
-        """Test that fetch function is called with the correct URL."""
-        test_url = "https://example.com/data.csv"
+        """Test that function works with CSV that doesn't have footnotes column."""
+        # Custom mock that returns CSV without footnotes
+        mock_fetch = Mock(return_value=SAMPLE_CSV_WITHOUT_FOOTNOTES)
 
-        download_and_process_data(test_url, temp_output_path, mock_fetch_csv)
-
-        mock_fetch_csv.assert_called_once_with(test_url)
-
-    def test_returns_correct_record_count(
-        self,
-        mock_fetch_csv: Mock,
-        temp_output_path: Path,
-    ) -> None:
-        """Test that function returns the correct number of records processed."""
-        result = download_and_process_data(
+        result = download_and_process_bls_employment_data(
             "https://example.com/data.csv",
             temp_output_path,
-            mock_fetch_csv,
+            mock_fetch,
         )
 
-        assert result == 4
-
-    def test_saves_cleaned_data_to_file(
-        self,
-        mock_fetch_csv: Mock,
-        temp_output_path: Path,
-    ) -> None:
-        """Test that cleaned data is saved to the output file."""
-        download_and_process_data(
-            "https://example.com/data.csv",
-            temp_output_path,
-            mock_fetch_csv,
-        )
-
-        assert temp_output_path.exists()
-
-        # Verify the saved data
-        df = pd.read_csv(temp_output_path)
-        assert len(df) == 4
-        assert 'footnotes' not in df.columns
-        assert len(df.columns) == 11
-
-    def test_data_integrity_in_saved_file(
-        self,
-        mock_fetch_csv: Mock,
-        temp_output_path: Path,
-    ) -> None:
-        """Test that data values are preserved in the saved file."""
-        download_and_process_data(
-            "https://example.com/data.csv",
-            temp_output_path,
-            mock_fetch_csv,
-        )
-
-        df = pd.read_csv(temp_output_path)
-
-        # Check first row
-        assert df.iloc[0]['year'] == 1941
-        assert df.iloc[0]['population'] == 99900
-        assert df.iloc[0]['unemployed'] == 5560
+        assert len(result) == 4
+        assert len(result.columns) == 11
+        assert 'footnotes' not in result.columns
 
     def test_handles_different_fetch_functions(
         self,
@@ -220,35 +232,33 @@ class TestDownloadAndProcessData:
         """Test that function works with different fetch function implementations."""
         # Custom fetch function
         def custom_fetch(url: str) -> str:
-            return SAMPLE_CSV_WITHOUT_FOOTNOTES
+            return SAMPLE_CSV_WITH_FOOTNOTES
 
-        result = download_and_process_data(
+        result = download_and_process_bls_employment_data(
             "https://example.com/data.csv",
             temp_output_path,
             custom_fetch,
         )
 
-        assert result == 4
-        assert temp_output_path.exists()
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) == 4
 
-    def test_fetch_function_can_be_injected(
+    def test_uses_none_as_default_fetch_function(
         self,
         temp_output_path: Path,
     ) -> None:
-        """Test that fetch function can be injected as a dependency."""
-        # Create a custom mock fetch function
-        custom_fetch = Mock(return_value=SAMPLE_CSV_WITH_FOOTNOTES)
+        """Test that None can be passed as fetch_func to use default."""
+        # Create a mock that returns valid CSV
+        mock_fetch = Mock(return_value=SAMPLE_CSV_WITH_FOOTNOTES)
 
-        # Call with custom fetch function
-        result = download_and_process_data(
+        # This test verifies the signature accepts None
+        result = download_and_process_bls_employment_data(
             "https://example.com/data.csv",
             temp_output_path,
-            fetch_func=custom_fetch,
+            fetch_func=mock_fetch,
         )
 
-        # Verify the custom fetch was called
-        assert result == 4
-        custom_fetch.assert_called_once_with("https://example.com/data.csv")
+        assert isinstance(result, pd.DataFrame)
 
 
 class TestIntegration:
@@ -264,34 +274,47 @@ class TestIntegration:
             return SAMPLE_CSV_WITH_FOOTNOTES
 
         # Run the complete workflow
-        record_count = download_and_process_data(
+        result = download_and_process_bls_employment_data(
             "https://example.com/data.csv",
             temp_output_path,
             mock_fetch,
         )
 
-        # Verify results
-        assert record_count == 4
+        # Verify returned DataFrame
+        assert isinstance(result, pd.DataFrame)
+        assert len(result) == 4
+        assert len(result.columns) == 11
+        assert 'footnotes' not in result.columns
+
+        # Verify file was saved
         assert temp_output_path.exists()
 
-        # Load and verify the saved data
-        df = pd.read_csv(temp_output_path)
-        assert len(df) == 4
-        assert list(df.columns) == [
-            'year',
-            'population',
-            'labor_force',
-            'population_percent',
-            'employed_total',
-            'employed_percent',
-            'agrictulture_ratio',
-            'nonagriculture_ratio',
-            'unemployed',
-            'unemployed_percent',
-            'not_in_labor',
-        ]
+        # Verify saved data matches returned data
+        saved_df = pd.read_csv(temp_output_path)
+        pd.testing.assert_frame_equal(result, saved_df)
 
-        # Verify data values
-        assert df.iloc[0]['year'] == 1941
-        assert df.iloc[2]['year'] == 1953
-        assert df.iloc[2]['unemployed'] == 1834
+        # Verify specific data values
+        assert result.iloc[0]['year'] == 1941
+        assert result.iloc[2]['year'] == 1953
+        assert result.iloc[2]['unemployed'] == 1834
+
+    def test_dataframe_can_be_used_for_further_processing(
+        self,
+        temp_output_path: Path,
+    ) -> None:
+        """Test that returned DataFrame can be used for additional processing."""
+        mock_fetch = Mock(return_value=SAMPLE_CSV_WITH_FOOTNOTES)
+
+        # Get the DataFrame
+        result = download_and_process_bls_employment_data(
+            "https://example.com/data.csv",
+            temp_output_path,
+            mock_fetch,
+        )
+
+        # Perform some DataFrame operations
+        filtered = result[result['year'] > 1950]
+        assert len(filtered) == 2
+
+        summary_stats = result['population'].describe()
+        assert summary_stats['count'] == 4

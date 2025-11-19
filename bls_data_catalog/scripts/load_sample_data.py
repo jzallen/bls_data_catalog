@@ -34,7 +34,7 @@ REQUEST_TIMEOUT: Final[int] = 30
 EXCLUDED_COLUMNS: Final[list[str]] = ['footnotes']
 
 
-def fetch_csv_data(url: str) -> str:
+def _fetch_csv_data(url: str) -> str:
     """
     Fetch CSV data from a URL.
 
@@ -52,7 +52,7 @@ def fetch_csv_data(url: str) -> str:
     return response.text
 
 
-def clean_employment_data(raw_csv: str) -> pd.DataFrame:
+def _clean_employment_data(raw_csv: str) -> pd.DataFrame:
     """
     Clean and process employment data CSV.
 
@@ -76,7 +76,7 @@ def clean_employment_data(raw_csv: str) -> pd.DataFrame:
     return df
 
 
-def save_dataframe(df: pd.DataFrame, output_path: Path) -> None:
+def _save_dataframe(df: pd.DataFrame, output_path: Path) -> None:
     """
     Save DataFrame to CSV file.
 
@@ -91,26 +91,29 @@ def save_dataframe(df: pd.DataFrame, output_path: Path) -> None:
     df.to_csv(output_path, index=False)
 
 
-def download_and_process_data(
+def download_and_process_bls_employment_data(
     url: str,
     output_path: Path,
-    fetch_func: Callable[[str], str] = fetch_csv_data,
-) -> int:
+    fetch_func: Callable[[str], str] | None = None,
+) -> pd.DataFrame:
     """
-    Download employment data, clean it, and save to file.
+    Download BLS employment data, clean it, and save to file.
 
     Args:
         url: URL to the raw CSV file
         output_path: Path where the CSV should be saved
-        fetch_func: Function to fetch CSV data from URL (default: fetch_csv_data)
+        fetch_func: Optional function to fetch CSV data from URL (default: _fetch_csv_data)
 
     Returns:
-        Number of records processed
+        Cleaned pandas DataFrame
 
     Raises:
         requests.exceptions.RequestException: If download fails
         Exception: If data processing fails
     """
+    if fetch_func is None:
+        fetch_func = _fetch_csv_data
+
     print(f"Downloading data from: {url}")
 
     # Fetch raw CSV data
@@ -118,12 +121,12 @@ def download_and_process_data(
 
     # Clean the data
     print("Cleaning data...")
-    df = clean_employment_data(raw_csv)
+    df = _clean_employment_data(raw_csv)
 
     # Save to file
-    save_dataframe(df, output_path)
+    _save_dataframe(df, output_path)
 
-    return len(df)
+    return df
 
 
 def main() -> None:
@@ -140,9 +143,9 @@ def main() -> None:
     output_file = data_dir / OUTPUT_FILENAME
 
     try:
-        record_count = download_and_process_data(DATA_URL, output_file)
+        df = download_and_process_bls_employment_data(DATA_URL, output_file)
 
-        print(f"✓ Successfully processed {record_count:,} records")
+        print(f"✓ Successfully processed {len(df):,} records")
         print(f"✓ Saved to: {output_file}")
 
         print("\n" + "=" * 70)
