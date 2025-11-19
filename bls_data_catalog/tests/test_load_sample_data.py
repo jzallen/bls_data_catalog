@@ -25,6 +25,73 @@ SAMPLE_CSV_WITHOUT_FOOTNOTES = """year,population,labor_force,population_percent
 1953,107056,63015,58.9,61179,57.1,6260,54919,1834,2.9,44041
 1954,108321,63643,58.8,60109,55.5,6205,53904,3532,5.5,44678"""
 
+# Expected data after processing (footnotes column removed)
+EXPECTED_DATA = [
+    {
+        'year': 1941,
+        'population': 99900,
+        'labor_force': 55910,
+        'population_percent': 56.0,
+        'employed_total': 50350,
+        'employed_percent': 50.4,
+        'agrictulture_ratio': 9100,
+        'nonagriculture_ratio': 41250,
+        'unemployed': 5560,
+        'unemployed_percent': 9.9,
+        'not_in_labor': 43990,
+    },
+    {
+        'year': 1942,
+        'population': 98640,
+        'labor_force': 56410,
+        'population_percent': 57.2,
+        'employed_total': 53750,
+        'employed_percent': 54.5,
+        'agrictulture_ratio': 9250,
+        'nonagriculture_ratio': 44500,
+        'unemployed': 2660,
+        'unemployed_percent': 4.7,
+        'not_in_labor': 42230,
+    },
+    {
+        'year': 1953,
+        'population': 107056,
+        'labor_force': 63015,
+        'population_percent': 58.9,
+        'employed_total': 61179,
+        'employed_percent': 57.1,
+        'agrictulture_ratio': 6260,
+        'nonagriculture_ratio': 54919,
+        'unemployed': 1834,
+        'unemployed_percent': 2.9,
+        'not_in_labor': 44041,
+    },
+    {
+        'year': 1954,
+        'population': 108321,
+        'labor_force': 63643,
+        'population_percent': 58.8,
+        'employed_total': 60109,
+        'employed_percent': 55.5,
+        'agrictulture_ratio': 6205,
+        'nonagriculture_ratio': 53904,
+        'unemployed': 3532,
+        'unemployed_percent': 5.5,
+        'not_in_labor': 44678,
+    },
+]
+
+
+@pytest.fixture
+def expected_dataframe() -> pd.DataFrame:
+    """
+    Create the expected DataFrame after processing.
+
+    Returns:
+        Expected pandas DataFrame with cleaned data
+    """
+    return pd.DataFrame(EXPECTED_DATA)
+
 
 @pytest.fixture
 def mock_fetch_csv() -> Callable[[str], str]:
@@ -111,23 +178,21 @@ class TestDownloadAndProcessBlsEmploymentData:
 
         assert 'footnotes' not in result.columns
 
-    def test_preserves_data_integrity(
+    def test_returns_expected_dataframe(
         self,
         mock_fetch_csv: Mock,
         temp_output_path: Path,
+        expected_dataframe: pd.DataFrame,
     ) -> None:
-        """Test that data values are preserved correctly."""
+        """Test that function returns the expected DataFrame with correct data."""
         result = download_and_process_bls_employment_data(
             "https://example.com/data.csv",
             temp_output_path,
             mock_fetch_csv,
         )
 
-        # Check first row values
-        assert result.iloc[0]['year'] == 1941
-        assert result.iloc[0]['population'] == 99900
-        assert result.iloc[0]['labor_force'] == 55910
-        assert result.iloc[0]['unemployed'] == 5560
+        # Compare entire DataFrames
+        pd.testing.assert_frame_equal(result, expected_dataframe)
 
     def test_returns_correct_columns(
         self,
@@ -175,6 +240,7 @@ class TestDownloadAndProcessBlsEmploymentData:
         self,
         mock_fetch_csv: Mock,
         temp_output_path: Path,
+        expected_dataframe: pd.DataFrame,
     ) -> None:
         """Test that saved file contents match the returned DataFrame."""
         result = download_and_process_bls_employment_data(
@@ -186,8 +252,9 @@ class TestDownloadAndProcessBlsEmploymentData:
         # Read the saved file
         saved_df = pd.read_csv(temp_output_path)
 
-        # Compare DataFrames
+        # Compare all three: result, saved file, and expected
         pd.testing.assert_frame_equal(result, saved_df)
+        pd.testing.assert_frame_equal(result, expected_dataframe)
 
     def test_creates_parent_directory_if_missing(
         self,
@@ -267,6 +334,7 @@ class TestIntegration:
     def test_end_to_end_workflow(
         self,
         temp_output_path: Path,
+        expected_dataframe: pd.DataFrame,
     ) -> None:
         """Test the complete workflow from fetch to save."""
         # Create a mock fetch function
@@ -280,27 +348,20 @@ class TestIntegration:
             mock_fetch,
         )
 
-        # Verify returned DataFrame
-        assert isinstance(result, pd.DataFrame)
-        assert len(result) == 4
-        assert len(result.columns) == 11
-        assert 'footnotes' not in result.columns
+        # Verify returned DataFrame matches expected
+        pd.testing.assert_frame_equal(result, expected_dataframe)
 
         # Verify file was saved
         assert temp_output_path.exists()
 
         # Verify saved data matches returned data
         saved_df = pd.read_csv(temp_output_path)
-        pd.testing.assert_frame_equal(result, saved_df)
-
-        # Verify specific data values
-        assert result.iloc[0]['year'] == 1941
-        assert result.iloc[2]['year'] == 1953
-        assert result.iloc[2]['unemployed'] == 1834
+        pd.testing.assert_frame_equal(saved_df, expected_dataframe)
 
     def test_dataframe_can_be_used_for_further_processing(
         self,
         temp_output_path: Path,
+        expected_dataframe: pd.DataFrame,
     ) -> None:
         """Test that returned DataFrame can be used for additional processing."""
         mock_fetch = Mock(return_value=SAMPLE_CSV_WITH_FOOTNOTES)
@@ -312,9 +373,15 @@ class TestIntegration:
             mock_fetch,
         )
 
-        # Perform some DataFrame operations
-        filtered = result[result['year'] > 1950]
-        assert len(filtered) == 2
+        # Verify it matches expected first
+        pd.testing.assert_frame_equal(result, expected_dataframe)
 
+        # Perform DataFrame operations and verify results
+        filtered = result[result['year'] > 1950]
+        expected_filtered = pd.DataFrame([EXPECTED_DATA[2], EXPECTED_DATA[3]])
+        pd.testing.assert_frame_equal(filtered.reset_index(drop=True), expected_filtered)
+
+        # Verify summary statistics
         summary_stats = result['population'].describe()
         assert summary_stats['count'] == 4
+        assert summary_stats['mean'] == 103479.25  # (99900 + 98640 + 107056 + 108321) / 4
