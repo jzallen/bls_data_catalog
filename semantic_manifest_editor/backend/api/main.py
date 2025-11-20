@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from .routes import semantic_models
 
 app = FastAPI(
     title="Semantic Manifest Editor API",
@@ -16,20 +17,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Register routers
+app.include_router(semantic_models.router, prefix="/api")
+
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "ok", "service": "semantic-manifest-editor"}
-
-@app.get("/api/semantic-models")
-async def list_semantic_models():
-    """List all semantic models."""
-    return []
-
-@app.get("/api/metrics")
-async def list_metrics():
-    """List all metrics."""
-    return []
 
 if __name__ == "__main__":
     import uvicorn
