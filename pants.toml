@@ -16,6 +16,7 @@ enable_resolves = true
 
 [python.resolves]
 bls_data_catalog_env = "bls_data_catalog_env.lock"
+semantic_manifest_editor_backend_env = "semantic_manifest_editor_backend_env.lock"
 
 [ruff]
 config = "bls_data_catalog/pyproject.toml"
