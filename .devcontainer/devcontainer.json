@@ -11,6 +11,9 @@
     },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "upgradePackages": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker": {
+      "moby": false
     }
   },
 
