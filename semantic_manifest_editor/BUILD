@@ -4,14 +4,12 @@ docker_image(
     instructions=[
         "FROM python:3.12-slim",
         "WORKDIR /app",
-        "COPY semantic_manifest_editor/backend/requirements.txt .",
-        "RUN pip install --no-cache-dir -r requirements.txt",
-        "COPY semantic_manifest_editor/backend .",
+        "COPY semantic_manifest_editor/backend/backend-pex.pex /app/backend.pex",
         "EXPOSE 8000",
-        'CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]',
+        'CMD ["/app/backend.pex"]',
     ],
     dependencies=[
-        "semantic_manifest_editor/backend:backend",
+        "semantic_manifest_editor/backend:backend-pex",
     ],
     image_tags=["latest"],
     repository="semantic-manifest-editor-backend",
