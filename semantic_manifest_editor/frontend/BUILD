@@ -1,4 +1,4 @@
 files(
-    name="frontend",
+    name="lib",
     sources=["**/*"],
 )

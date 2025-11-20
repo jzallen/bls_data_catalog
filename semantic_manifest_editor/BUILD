@@ -1,18 +1,31 @@
+# Backend PEX Binary
+pex_binary(
+    name="backend",
+    entry_point="uvicorn",
+    args=["api.main:app", "--host", "0.0.0.0", "--port", "8000"],
+    resolve="semantic_manifest_editor_backend_env",
+    dependencies=["backend:lib"],
+)
+
 # Backend Docker Image
 docker_image(
     name="backend-image",
     instructions=[
         "FROM python:3.12-slim",
         "WORKDIR /app",
-        "COPY semantic_manifest_editor/backend/backend-pex.pex /app/backend.pex",
+        "COPY semantic_manifest_editor/backend.pex /app/backend.pex",
         "EXPOSE 8000",
         'CMD ["/app/backend.pex"]',
     ],
-    dependencies=[
-        "semantic_manifest_editor/backend:backend-pex",
-    ],
+    dependencies=[":backend"],
     image_tags=["latest"],
     repository="semantic-manifest-editor-backend",
+)
+
+# Frontend files target
+files(
+    name="frontend",
+    sources=["frontend:lib"],
 )
 
 # Frontend Docker Image
@@ -31,9 +44,7 @@ docker_image(
         "EXPOSE 80",
         'CMD ["nginx", "-g", "daemon off;"]',
     ],
-    dependencies=[
-        "semantic_manifest_editor/frontend:frontend",
-    ],
+    dependencies=[":frontend"],
     image_tags=["latest"],
     repository="semantic-manifest-editor-frontend",
 )
