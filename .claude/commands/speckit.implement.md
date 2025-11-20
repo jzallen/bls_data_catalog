@@ -103,27 +103,71 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Task details**: ID, description, file paths, parallel markers [P]
    - **Execution flow**: Order and dependency requirements
 
-6. Execute implementation following the task plan:
+6. **Linear Integration & Worktree Workflow**:
+
+   **Initial Setup**:
+   - Verify Linear issues exist for all tasks (check task IDs match Linear issue identifiers)
+   - Get the current feature branch name (e.g., `001-semantic-manifest-editor`)
+   - Ensure you're on the feature branch before starting implementation
+
+   **Parallel Task Execution (Max 5 concurrent tasks)**:
+   - Select up to 5 parallelizable tasks [P] that can run simultaneously
+   - For each selected task:
+     1. **Retrieve Linear branch name**: Use `mcp__linear-server__get_issue` to get the `gitBranchName` field for the task's Linear issue
+     2. **Create git worktree**:
+        ```bash
+        git worktree add ../worktrees/<branch-name> -b <branch-name>
+        ```
+     3. **Update Linear status**: Use `mcp__linear-server__update_issue` to set status to "In Progress"
+     4. **Implement in worktree**: Switch context to the worktree directory and implement the task
+     5. **Commit changes**: Make atomic commits in the worktree with descriptive messages
+     6. **Merge to feature branch**:
+        ```bash
+        git checkout <feature-branch>
+        git merge --no-ff <task-branch> -m "Merge <task-id>: <task-description>"
+        ```
+     7. **Update Linear status**: Use `mcp__linear-server__update_issue` to set status to "Completed"
+     8. **Clean up worktree**:
+        ```bash
+        git worktree remove ../worktrees/<branch-name>
+        git branch -d <branch-name>
+        ```
+
+   **Workflow Rules**:
+   - Maximum 5 worktrees active at any time
+   - Tasks affecting the same files must run sequentially (not in parallel)
+   - Dependencies must be respected: don't start a task until its dependencies are merged
+   - Always return to feature branch between task implementations
+   - Keep worktree directory organized: `../worktrees/<branch-name>/`
+
+   **Error Handling for Worktrees**:
+   - If worktree creation fails (already exists), clean up and recreate
+   - If merge conflicts occur, resolve in the task branch before merging
+   - If Linear API fails, continue with git workflow and update status manually later
+
+7. Execute implementation following the task plan:
    - **Phase-by-phase execution**: Complete each phase before moving to the next
-   - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together  
+   - **Respect dependencies**: Run sequential tasks in order, parallel tasks [P] can run together using worktrees
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
    - **Validation checkpoints**: Verify each phase completion before proceeding
+   - **Linear sync**: Keep Linear issue status in sync with implementation progress
 
-7. Implementation execution rules:
+8. Implementation execution rules:
    - **Setup first**: Initialize project structure, dependencies, configuration
    - **Tests before code**: If you need to write tests for contracts, entities, and integration scenarios
    - **Core development**: Implement models, services, CLI commands, endpoints
    - **Integration work**: Database connections, middleware, logging, external services
    - **Polish and validation**: Unit tests, performance optimization, documentation
 
-8. Progress tracking and error handling:
+9. Progress tracking and error handling:
    - Report progress after each completed task
+   - Update Linear issue status as tasks progress (Backlog → In Progress → Completed)
    - Halt execution if any non-parallel task fails
    - For parallel tasks [P], continue with successful tasks, report failed ones
    - Provide clear error messages with context for debugging
    - Suggest next steps if implementation cannot proceed
-   - **IMPORTANT** For completed tasks, make sure to mark the task off as [X] in the tasks file.
+   - **IMPORTANT** For completed tasks, mark the task as [X] in tasks.md AND update Linear status to "Completed"
 
 9. Completion validation:
    - Verify all required tasks are completed

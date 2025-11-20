@@ -1,0 +1,167 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/semantic-manifest.schema.json",
+  "title": "Semantic Manifest",
+  "description": "MetricFlow semantic manifest schema for the Semantic Manifest Editor",
+  "type": "object",
+  "required": ["semantic_models", "metrics"],
+  "properties": {
+    "semantic_models": {
+      "type": "array",
+      "description": "Collection of semantic models",
+      "items": {
+        "$ref": "#/$defs/SemanticModel"
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "description": "Collection of metrics",
+      "items": {
+        "$ref": "#/$defs/Metric"
+      }
+    },
+    "project_configuration": {
+      "type": "object",
+      "description": "MetricFlow project configuration"
+    },
+    "saved_queries": {
+      "type": "array",
+      "description": "Pre-defined saved queries",
+      "default": []
+    }
+  },
+  "$defs": {
+    "SemanticModel": {
+      "type": "object",
+      "required": ["name", "node_relation", "entities"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique semantic model name",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "node_relation": {
+          "$ref": "#/$defs/NodeRelation"
+        },
+        "entities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Entity"
+          }
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Dimension"
+          }
+        },
+        "measures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Measure"
+          }
+        }
+      }
+    },
+    "NodeRelation": {
+      "type": "object",
+      "required": ["alias", "schema_name", "database"],
+      "properties": {
+        "alias": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schema_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Entity": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["primary", "foreign", "unique"]
+        },
+        "expr": {
+          "type": "string"
+        }
+      }
+    },
+    "Dimension": {
+      "type": "object",
+      "required": ["name", "type", "expr"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["time", "categorical"]
+        },
+        "expr": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type_params": {
+          "type": "object",
+          "properties": {
+            "time_granularity": {
+              "type": "string",
+              "enum": ["day", "week", "month", "quarter", "year"]
+            }
+          }
+        }
+      }
+    },
+    "Measure": {
+      "type": "object",
+      "required": ["name", "agg"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agg": {
+          "type": "string",
+          "enum": ["sum", "average", "count", "min", "max", "count_distinct"]
+        },
+        "expr": {
+          "type": "string"
+        }
+      }
+    },
+    "Metric": {
+      "type": "object",
+      "required": ["name", "type", "type_params"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": ["simple", "ratio", "derived"]
+        },
+        "type_params": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

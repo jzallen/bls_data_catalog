@@ -1,0 +1,813 @@
+openapi: 3.0.3
+info:
+  title: Semantic Manifest Editor API
+  description: API for creating and editing MetricFlow semantic_manifest.json files
+  version: 1.0.0
+  contact:
+    name: BLS Data Catalog Team
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development server
+  - url: https://api.example.com/api/v1
+    description: Production server (future)
+
+tags:
+  - name: semantic-models
+    description: Semantic model management
+  - name: metrics
+    description: Metric management
+  - name: validation
+    description: Manifest validation
+  - name: manifest
+    description: Import/export and persistence
+
+paths:
+  # Semantic Models
+  /semantic-models:
+    post:
+      summary: Create a new semantic model
+      tags: [semantic-models]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SemanticModelCreate'
+      responses:
+        '201':
+          description: Semantic model created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticModel'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+    get:
+      summary: List all semantic models
+      tags: [semantic-models]
+      responses:
+        '200':
+          description: List of semantic models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SemanticModel'
+
+  /semantic-models/{modelId}:
+    parameters:
+      - $ref: '#/components/parameters/ModelId'
+
+    get:
+      summary: Get semantic model by ID
+      tags: [semantic-models]
+      responses:
+        '200':
+          description: Semantic model details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticModel'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update semantic model
+      tags: [semantic-models]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SemanticModelUpdate'
+      responses:
+        '200':
+          description: Semantic model updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticModel'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete semantic model
+      tags: [semantic-models]
+      responses:
+        '204':
+          description: Semantic model deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /semantic-models/{modelId}/entities:
+    parameters:
+      - $ref: '#/components/parameters/ModelId'
+
+    post:
+      summary: Add entity to semantic model
+      tags: [semantic-models]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Entity'
+      responses:
+        '201':
+          description: Entity added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entity'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /semantic-models/{modelId}/dimensions:
+    parameters:
+      - $ref: '#/components/parameters/ModelId'
+
+    post:
+      summary: Add dimension to semantic model
+      tags: [semantic-models]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dimension'
+      responses:
+        '201':
+          description: Dimension added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dimension'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /semantic-models/{modelId}/measures:
+    parameters:
+      - $ref: '#/components/parameters/ModelId'
+
+    post:
+      summary: Add measure to semantic model
+      tags: [semantic-models]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Measure'
+      responses:
+        '201':
+          description: Measure added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Measure'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  # Metrics
+  /metrics:
+    post:
+      summary: Create a new metric
+      tags: [metrics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetricCreate'
+      responses:
+        '201':
+          description: Metric created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metric'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+    get:
+      summary: List all metrics
+      tags: [metrics]
+      responses:
+        '200':
+          description: List of metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Metric'
+
+  /metrics/{metricId}:
+    parameters:
+      - $ref: '#/components/parameters/MetricId'
+
+    get:
+      summary: Get metric by ID
+      tags: [metrics]
+      responses:
+        '200':
+          description: Metric details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metric'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update metric
+      tags: [metrics]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetricUpdate'
+      responses:
+        '200':
+          description: Metric updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metric'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete metric
+      tags: [metrics]
+      responses:
+        '204':
+          description: Metric deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Validation
+  /validation/schema:
+    post:
+      summary: Validate manifest structure
+      description: Validates the semantic manifest against JSON schema and business rules
+      tags: [validation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Manifest'
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+
+  /validation/database:
+    post:
+      summary: Validate against database schema
+      description: Checks if table and column references exist in the database
+      tags: [validation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - semantic_model_id
+              properties:
+                semantic_model_id:
+                  type: string
+                  format: uuid
+                  description: Semantic model to validate
+                check:
+                  type: array
+                  items:
+                    type: string
+                    enum: [entities, dimensions, measures, all]
+                  default: [all]
+      responses:
+        '200':
+          description: Database validation result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Manifest operations
+  /manifest/import:
+    post:
+      summary: Import semantic_manifest.json file
+      tags: [manifest]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Manifest'
+      responses:
+        '200':
+          description: Manifest imported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manifest'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /manifest/export:
+    get:
+      summary: Export semantic_manifest.json file
+      tags: [manifest]
+      responses:
+        '200':
+          description: Manifest exported
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manifest'
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="semantic_manifest.json"
+
+  /manifest/save:
+    post:
+      summary: Save current manifest version
+      tags: [manifest]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - manifest
+              properties:
+                name:
+                  type: string
+                  description: Optional version name
+                manifest:
+                  $ref: '#/components/schemas/Manifest'
+      responses:
+        '201':
+          description: Manifest version saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManifestVersion'
+
+  /manifest/versions:
+    get:
+      summary: List saved manifest versions
+      tags: [manifest]
+      responses:
+        '200':
+          description: List of saved versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ManifestVersion'
+
+  /manifest/versions/{versionId}:
+    parameters:
+      - name: versionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      summary: Get specific manifest version
+      tags: [manifest]
+      responses:
+        '200':
+          description: Manifest version details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManifestVersion'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete manifest version
+      tags: [manifest]
+      responses:
+        '204':
+          description: Version deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  parameters:
+    ModelId:
+      name: modelId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Semantic model unique identifier
+
+    MetricId:
+      name: metricId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Metric unique identifier
+
+  schemas:
+    # Core entities
+    NodeRelation:
+      type: object
+      required: [alias, schema_name, database]
+      properties:
+        alias:
+          type: string
+          description: Table/view alias
+        schema_name:
+          type: string
+          description: Database schema name
+        database:
+          type: string
+          description: Database name
+        relation_name:
+          type: string
+          description: Fully qualified relation name (auto-generated)
+
+    Entity:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+          description: Unique entity name within semantic model
+        type:
+          type: string
+          enum: [primary, foreign, unique]
+          description: Entity type
+        expr:
+          type: string
+          description: SQL expression (defaults to name)
+        description:
+          type: string
+        role:
+          type: string
+          description: Entity role for joins
+        label:
+          type: string
+        metadata:
+          type: object
+        config:
+          type: object
+
+    Dimension:
+      type: object
+      required: [name, type, expr]
+      properties:
+        name:
+          type: string
+          description: Unique dimension name within semantic model
+        type:
+          type: string
+          enum: [time, categorical]
+        expr:
+          type: string
+          description: SQL expression
+        description:
+          type: string
+        type_params:
+          type: object
+          description: Type-specific parameters (required for time dimensions)
+          properties:
+            time_granularity:
+              type: string
+              enum: [day, week, month, quarter, year]
+        is_partition:
+          type: boolean
+          default: false
+        label:
+          type: string
+        metadata:
+          type: object
+        config:
+          type: object
+
+    Measure:
+      type: object
+      required: [name, agg]
+      properties:
+        name:
+          type: string
+          description: Unique measure name within semantic model
+        agg:
+          type: string
+          enum: [sum, average, count, min, max, count_distinct]
+          description: Aggregation type
+        expr:
+          type: string
+          description: SQL expression (defaults to name)
+        description:
+          type: string
+        create_metric:
+          type: boolean
+          default: false
+        agg_params:
+          type: object
+        non_additive_dimension:
+          type: object
+        agg_time_dimension:
+          type: string
+        label:
+          type: string
+        metadata:
+          type: object
+        config:
+          type: object
+
+    SemanticModel:
+      type: object
+      required: [name, node_relation, entities]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Internal editor ID (not exported)
+        name:
+          type: string
+          description: Unique semantic model name
+        description:
+          type: string
+        node_relation:
+          $ref: '#/components/schemas/NodeRelation'
+        defaults:
+          type: object
+          description: Default settings
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+          minItems: 1
+        dimensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dimension'
+        measures:
+          type: array
+          items:
+            $ref: '#/components/schemas/Measure'
+        primary_entity:
+          type: string
+        label:
+          type: string
+        metadata:
+          type: object
+        config:
+          type: object
+
+    SemanticModelCreate:
+      allOf:
+        - $ref: '#/components/schemas/SemanticModel'
+        - type: object
+          properties:
+            id:
+              readOnly: true
+
+    SemanticModelUpdate:
+      allOf:
+        - $ref: '#/components/schemas/SemanticModel'
+
+    MeasureReference:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: Measure name
+        filter:
+          type: object
+        alias:
+          type: string
+
+    Metric:
+      type: object
+      required: [name, type, type_params]
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Internal editor ID (not exported)
+        name:
+          type: string
+          description: Unique metric name
+        type:
+          type: string
+          enum: [simple, ratio, derived]
+        description:
+          type: string
+        type_params:
+          type: object
+          description: Type-specific parameters
+          oneOf:
+            - $ref: '#/components/schemas/SimpleMetricParams'
+            - $ref: '#/components/schemas/RatioMetricParams'
+            - $ref: '#/components/schemas/DerivedMetricParams'
+        filter:
+          type: object
+        label:
+          type: string
+        metadata:
+          type: object
+        config:
+          type: object
+
+    SimpleMetricParams:
+      type: object
+      required: [measure]
+      properties:
+        measure:
+          $ref: '#/components/schemas/MeasureReference'
+
+    RatioMetricParams:
+      type: object
+      required: [numerator, denominator]
+      properties:
+        numerator:
+          $ref: '#/components/schemas/MeasureReference'
+        denominator:
+          $ref: '#/components/schemas/MeasureReference'
+
+    DerivedMetricParams:
+      type: object
+      required: [expr, metrics]
+      properties:
+        expr:
+          type: string
+          description: SQL expression referencing metrics
+        metrics:
+          type: array
+          items:
+            type: object
+            required: [name]
+            properties:
+              name:
+                type: string
+
+    MetricCreate:
+      allOf:
+        - $ref: '#/components/schemas/Metric'
+        - type: object
+          properties:
+            id:
+              readOnly: true
+
+    MetricUpdate:
+      allOf:
+        - $ref: '#/components/schemas/Metric'
+
+    Manifest:
+      type: object
+      required: [semantic_models, metrics]
+      properties:
+        semantic_models:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticModel'
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metric'
+        project_configuration:
+          type: object
+          description: MetricFlow project configuration
+        saved_queries:
+          type: array
+          default: []
+
+    ValidationError:
+      type: object
+      required: [severity, code, message, location]
+      properties:
+        severity:
+          type: string
+          enum: [error, warning, info]
+        code:
+          type: string
+          example: MISSING_REQUIRED_FIELD
+        message:
+          type: string
+          description: Human-readable error message
+        location:
+          type: string
+          description: JSON path to error location
+          example: semantic_models[0].measures[2].agg
+        suggestion:
+          type: string
+          description: Suggested fix
+        timestamp:
+          type: string
+          format: date-time
+
+    ValidationResult:
+      type: object
+      required: [status, errors, warnings]
+      properties:
+        status:
+          type: string
+          enum: [valid, invalid, warning]
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+        warnings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+        validated_at:
+          type: string
+          format: date-time
+
+    ManifestVersion:
+      type: object
+      required: [id, timestamp, manifest]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        manifest:
+          $ref: '#/components/schemas/Manifest'
+        created_by:
+          type: string
+          description: User identifier (future)
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                $ref: '#/components/schemas/ValidationError'
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Validation failed
+              details:
+                - severity: error
+                  code: MISSING_REQUIRED_FIELD
+                  message: Missing required field agg
+                  location: semantic_models[0].measures[2].agg
+                  suggestion: "Valid aggregation types: sum, average, count, min, max"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error:
+              code: NOT_FOUND
+              message: Resource not found
