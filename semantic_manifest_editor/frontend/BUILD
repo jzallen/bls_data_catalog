@@ -1,0 +1,4 @@
+files(
+    name="frontend",
+    sources=["**/*"],
+)
