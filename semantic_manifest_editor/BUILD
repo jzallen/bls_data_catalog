@@ -22,12 +22,6 @@ docker_image(
     repository="semantic-manifest-editor-backend",
 )
 
-# Frontend files target
-files(
-    name="frontend",
-    sources=["frontend:lib"],
-)
-
 # Frontend Docker Image
 docker_image(
     name="frontend-image",
@@ -44,7 +38,7 @@ docker_image(
         "EXPOSE 80",
         'CMD ["nginx", "-g", "daemon off;"]',
     ],
-    dependencies=[":frontend"],
+    dependencies=["frontend:lib"],
     image_tags=["latest"],
     repository="semantic-manifest-editor-frontend",
 )
